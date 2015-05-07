@@ -12,8 +12,12 @@ func main() {
 	app.HideVersion = true
 	app.Version = Version
 	app.Usage = ""
-	app.Author = "Jeremy Orem"
-	app.Email = "oremj@mozilla.com"
+	app.Authors = []cli.Author{
+		cli.Author{
+			Name:  "Jeremy Orem",
+			Email: "oremj@mozilla.com",
+		},
+	}
 	app.Action = doMain
 	app.Flags = Flags
 
