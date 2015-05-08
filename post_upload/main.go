@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/codegangsta/cli"
@@ -25,6 +26,22 @@ func main() {
 	app.Flags = Flags
 
 	app.Run(os.Args)
+}
+
+func contextToOptions(c *cli.Context, r *postupload.Release) {
+	r.Branch = c.String("branch")
+	r.BuildDir = c.String("builddir")
+	r.BuildID = c.String("buildid")
+	r.BuildNumber = c.String("build-number")
+	r.NightlyDir = c.String("nightly-dir")
+	r.Product = c.String("product")
+	r.Revision = c.String("revision")
+	r.ShortDir = !c.Bool("no-shortdir")
+	r.Signed = c.Bool("signed")
+	r.SubDir = c.String("subdir")
+	r.TinderboxBuildsDir = c.String("tinderbox-builds-dir")
+	r.Version = c.String("version")
+	r.Who = c.String("who")
 }
 
 func doMain(c *cli.Context) {
@@ -76,9 +93,17 @@ func doMain(c *cli.Context) {
 		}
 	}
 
+	release := postupload.NewS3Release("", "")
+	contextToOptions(c, release)
+	release.SourceDir = uploadDir
+
 	if c.Bool("release-to-latest") {
-		postupload.ReleaseToLatest(
-			c.String("branch"), c.String("tinderbox-builds-dir"), uploadDir, files)
+		for _, f := range files {
+			err := release.ToLatest(f)
+			if err != nil {
+				log.Println(err)
+			}
+		}
 	}
 	if c.Bool("release-to-dated") {
 		postupload.ReleaseToDated(
