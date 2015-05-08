@@ -1,10 +1,10 @@
-package post_upload
+package postupload
 
 func ReleaseToLatest(branch, tinderboxBuildsDir, uploadDir string, files []string) {
 
 }
 
-func ReleaseToDated(branch, buildId, product, nightlyDir string, shortDir bool, uploadDir string, files []string) {
+func ReleaseToDated(branch, buildID, product, nightlyDir string, shortDir bool, uploadDir string, files []string) {
 
 }
 
@@ -16,11 +16,11 @@ func ReleaseToMobileCandidates(version, buildNumber, nightlyDir, product, upload
 
 }
 
-func ReleaseToTinderboxBuilds(product, buildId, buildDir, tinderboxBuildsDir, uploadDir string, files []string) {
+func ReleaseToTinderboxBuilds(product, buildID, buildDir, tinderboxBuildsDir, uploadDir string, files []string) {
 
 }
 
-func ReleaseToDatedTinderboxBuilds(product, buildId, buildDir, tinderboxBuildsDir, uploadDir string, files []string) {
+func ReleaseToDatedTinderboxBuilds(product, buildID, buildDir, tinderboxBuildsDir, uploadDir string, files []string) {
 
 }
 

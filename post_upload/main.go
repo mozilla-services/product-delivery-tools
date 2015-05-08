@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/codegangsta/cli"
-	"github.com/mozilla-services/product-delivery-tools/post_upload/post_upload"
+	"github.com/mozilla-services/product-delivery-tools/post_upload/postupload"
 )
 
 func main() {
@@ -28,7 +28,7 @@ func main() {
 }
 
 func doMain(c *cli.Context) {
-	errs := make([]error, 0)
+	errs := []error{}
 	requireArgs := func(args ...string) (hasErrors bool) {
 		for _, arg := range args {
 			if c.String(arg) == "" {
@@ -47,7 +47,7 @@ func doMain(c *cli.Context) {
 	}
 
 	if len(c.Args()) < 2 {
-		errs = append(errs, errors.New("you must specify a directory and at least one file."))
+		errs = append(errs, errors.New("you must specify a directory and at least one file"))
 	}
 
 	requireArgs("product")
@@ -77,11 +77,11 @@ func doMain(c *cli.Context) {
 	}
 
 	if c.Bool("release-to-latest") {
-		post_upload.ReleaseToLatest(
+		postupload.ReleaseToLatest(
 			c.String("branch"), c.String("tinderbox-builds-dir"), uploadDir, files)
 	}
 	if c.Bool("release-to-dated") {
-		post_upload.ReleaseToDated(
+		postupload.ReleaseToDated(
 			c.String("branch"),
 			c.String("build-id"),
 			c.String("product"),
@@ -90,7 +90,7 @@ func doMain(c *cli.Context) {
 	}
 
 	if c.Bool("release-to-candidates-dir") {
-		post_upload.ReleaseToCandidates(
+		postupload.ReleaseToCandidates(
 			c.String("build-dir"), c.String("build-number"),
 			c.String("product"), c.String("tinderbox-builds-dir"),
 			c.String("version"), c.Bool("signed"),
@@ -98,7 +98,7 @@ func doMain(c *cli.Context) {
 	}
 
 	if c.Bool("release-to-mobile-candidates-dir") {
-		post_upload.ReleaseToMobileCandidates(
+		postupload.ReleaseToMobileCandidates(
 			c.String("version"), c.String("build-number"),
 			c.String("nightly-dir"), c.String("product"),
 			uploadDir, files)
@@ -106,21 +106,21 @@ func doMain(c *cli.Context) {
 	}
 
 	if c.Bool("releaset-to-tinderbox-builds") {
-		post_upload.ReleaseToTinderboxBuilds(
+		postupload.ReleaseToTinderboxBuilds(
 			c.String("product"), c.String("build-id"),
 			c.String("build-dir"), c.String("tinderbox-builds-dir"),
 			uploadDir, files)
 	}
 
 	if c.Bool("release-to-dated-tinderbox-builds") {
-		post_upload.ReleaseToDatedTinderboxBuilds(
+		postupload.ReleaseToDatedTinderboxBuilds(
 			c.String("product"), c.String("build-id"),
 			c.String("build-dir"), c.String("tinderbox-builds-dir"),
 			uploadDir, files)
 	}
 
 	if c.Bool("release-to-try-builds") {
-		post_upload.ReleaseToTryBuilds(
+		postupload.ReleaseToTryBuilds(
 			c.String("product"), c.String("who"),
 			c.String("revision"), c.String("build-dir"),
 			uploadDir, files)
