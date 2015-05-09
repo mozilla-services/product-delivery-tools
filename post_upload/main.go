@@ -44,6 +44,14 @@ func contextToOptions(c *cli.Context, r *postupload.Release) {
 	r.Who = c.String("who")
 }
 
+func eachFile(files []string, f func(string) error) {
+	for _, file := range files {
+		if err := f(file); err != nil {
+			log.Println(err)
+		}
+	}
+}
+
 func doMain(c *cli.Context) {
 	errs := []error{}
 	requireArgs := func(args ...string) (hasErrors bool) {
@@ -98,12 +106,7 @@ func doMain(c *cli.Context) {
 	release.SourceDir = uploadDir
 
 	if c.Bool("release-to-latest") {
-		for _, f := range files {
-			err := release.ToLatest(f)
-			if err != nil {
-				log.Println(err)
-			}
-		}
+		eachFile(files, release.ToLatest)
 	}
 	if c.Bool("release-to-dated") {
 		postupload.ReleaseToDated(
