@@ -109,48 +109,27 @@ func doMain(c *cli.Context) {
 		eachFile(files, release.ToLatest)
 	}
 	if c.Bool("release-to-dated") {
-		postupload.ReleaseToDated(
-			c.String("branch"),
-			c.String("build-id"),
-			c.String("product"),
-			c.String("nightly-dir"),
-			!c.Bool("no-shortdir"), uploadDir, files)
+		eachFile(files, release.ToDated)
 	}
 
 	if c.Bool("release-to-candidates-dir") {
-		postupload.ReleaseToCandidates(
-			c.String("build-dir"), c.String("build-number"),
-			c.String("product"), c.String("tinderbox-builds-dir"),
-			c.String("version"), c.Bool("signed"),
-			uploadDir, files)
+		eachFile(files, release.ToCandidates)
 	}
 
 	if c.Bool("release-to-mobile-candidates-dir") {
-		postupload.ReleaseToMobileCandidates(
-			c.String("version"), c.String("build-number"),
-			c.String("nightly-dir"), c.String("product"),
-			uploadDir, files)
+		eachFile(files, release.ToMobileCandidates)
 
 	}
 
 	if c.Bool("releaset-to-tinderbox-builds") {
-		postupload.ReleaseToTinderboxBuilds(
-			c.String("product"), c.String("build-id"),
-			c.String("build-dir"), c.String("tinderbox-builds-dir"),
-			uploadDir, files)
+		eachFile(files, release.ToTinderboxBuilds)
 	}
 
 	if c.Bool("release-to-dated-tinderbox-builds") {
-		postupload.ReleaseToDatedTinderboxBuilds(
-			c.String("product"), c.String("build-id"),
-			c.String("build-dir"), c.String("tinderbox-builds-dir"),
-			uploadDir, files)
+		eachFile(files, release.ToDatedTinderboxBuilds)
 	}
 
 	if c.Bool("release-to-try-builds") {
-		postupload.ReleaseToTryBuilds(
-			c.String("product"), c.String("who"),
-			c.String("revision"), c.String("build-dir"),
-			uploadDir, files)
+		eachFile(files, release.ToTryBuilds)
 	}
 }
