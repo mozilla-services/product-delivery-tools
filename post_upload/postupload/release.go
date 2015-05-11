@@ -131,34 +131,36 @@ func (r *Release) ToLatest(file string) error {
 	return r.copyFile(file, latestPath, false, r.FtpCopier)
 }
 
-// ReleaseToDated copies files to dated
+// ToDated copies files to dated
 func (r *Release) ToDated(file string) error {
 
 	return nil
 }
 
-// ReleaseToCandidates copies files to candidates
-func ReleaseToCandidates(buildDir, buildNumber, product, tinderboxBuildsDir,
-	version string, signed bool, uploadDir string, files []string) {
+// ToCandidates copies files to candidates
+func (r *Release) ToCandidates(file string) error {
+	return nil
+}
+
+// ToMobileCandidates copies files to mobile candidates
+func (r *Release) ToMobileCandidates(file string) error {
+	return nil
 
 }
 
-// ReleaseToMobileCandidates copies files to mobile candidates
-func ReleaseToMobileCandidates(version, buildNumber, nightlyDir, product, uploadDir string, files []string) {
+// ToTinderboxBuilds copies files to tinderbox builds
+func (r *Release) ToTinderboxBuilds(file string) error {
+	return nil
 
 }
 
-// ReleaseToTinderboxBuilds copies files to tinderbox builds
-func ReleaseToTinderboxBuilds(product, buildID, buildDir, tinderboxBuildsDir, uploadDir string, files []string) {
+// ToDatedTinderboxBuilds copies files to dated tinderbox builds
+func (r *Release) ToDatedTinderboxBuilds(file string) error {
+	return nil
 
 }
 
-// ReleaseToDatedTinderboxBuilds copies files to dated tinderbox builds
-func ReleaseToDatedTinderboxBuilds(product, buildID, buildDir, tinderboxBuildsDir, uploadDir string, files []string) {
-
-}
-
-// ReleaseToTryBuilds copies files to try builds
-func ReleaseToTryBuilds(product, who, revision, buildDir, uploadDir string, files []string) {
-
+// ToTryBuilds copies files to try builds
+func (r *Release) ToTryBuilds(file string) error {
+	return nil
 }
