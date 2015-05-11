@@ -38,12 +38,16 @@ func NewTestRelease() (*Release, *TestCopier) {
 func TestReleaseToLatest(t *testing.T) {
 	assert := assert.New(t)
 	rel, copier := NewTestRelease()
-	rel.Branch = "l10n"
 	rel.SourceDir = "/tmp/src"
 	rel.BuildDir = "build-dir"
 	rel.TinderboxBuildsDir = "tbox-win32"
 
-	err := rel.ToLatest("/tmp/src/subdir/file")
+	err := rel.ToLatest("/tmp/src/nobranch")
+	assert.NotNil(err)
+
+	rel.Branch = "l10n"
+
+	err = rel.ToLatest("/tmp/src/subdir/file")
 	assert.Nil(err)
 	assert.Equal("prefix/ftp/latest-l10n/build-dir", copier.Dest)
 
