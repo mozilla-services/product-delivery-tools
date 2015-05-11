@@ -23,7 +23,7 @@ type Release struct {
 
 	Branch             string
 	BuildDir           string
-	BuildID            string
+	BuildID            BuildID
 	BuildNumber        string
 	NightlyDir         string
 	Product            string
@@ -134,7 +134,7 @@ func (r *Release) ToLatest(file string) error {
 
 // ToDated copies files to dated
 func (r *Release) ToDated(file string) error {
-	bID := buildID(r.BuildID)
+	bID := BuildID(r.BuildID)
 	if !bID.Validate() {
 		return errors.New("buildID is not valid")
 	}
