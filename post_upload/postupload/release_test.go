@@ -34,21 +34,21 @@ type FileTest struct {
 func NewTestRelease() (*Release, *TestCopier) {
 	copier := new(TestCopier)
 	return &Release{
-		FtpPrefix:  "prefix/ftp",
-		PvtPrefix:  "prefix/pvt",
-		FtpCopier:  copier,
-		PvtCopier:  copier,
-		SourceDir:  "/tmp/src",
-		BuildDir:   "build-dir",
-		Product:    "product",
-		NightlyDir: "nightly",
+		FtpPrefix:          "prefix/ftp",
+		PvtPrefix:          "prefix/pvt",
+		FtpCopier:          copier,
+		PvtCopier:          copier,
+		SourceDir:          "/tmp/src",
+		BuildDir:           "build-dir",
+		Product:            "product",
+		NightlyDir:         "nightly",
+		TinderboxBuildsDir: "tbox-win32",
 	}, copier
 }
 
 func TestReleaseToLatest(t *testing.T) {
 	assert := assert.New(t)
 	rel, copier := NewTestRelease()
-	rel.TinderboxBuildsDir = "tbox-win32"
 
 	err := rel.ToLatest("/tmp/src/nobranch")
 	assert.NotNil(err, "no Branch should trigger error.")
@@ -97,9 +97,11 @@ func TestReleaseToCandidateDir(t *testing.T) {
 	rel.Branch = "l10n"
 	rel.BuildNumber = "23"
 	rel.Version = "32"
+	rel.Signed = false
 
 	files := []FileTest{
-		FileTest{"/tmp/src/subdir/file", []string{"prefix/ftp/product/nightly/32-candidates/build23/subdir"}},
+		FileTest{"/tmp/src/subdir/file", []string{"prefix/ftp/product/nightly/32-candidates/build23/build-dir/subdir"}},
+		FileTest{"/tmp/src/subdir/win32-file", []string{"prefix/ftp/product/nightly/32-candidates/build23/unsigned/build-dir/subdir"}},
 		FileTest{"/tmp/src/mar.exe", []string{"prefix/ftp/product/nightly/32-candidates/build23/mar-tools/win32"}},
 	}
 	for _, file := range files {

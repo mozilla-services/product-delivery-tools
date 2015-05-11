@@ -156,7 +156,24 @@ func (r *Release) ToDated(file string) error {
 
 // ToCandidates copies files to candidates
 func (r *Release) ToCandidates(file string) error {
-	return nil
+	path := filepath.Join(r.nightlyPath(), r.Version+"-candidates", "build"+r.BuildNumber)
+	marToolsPath := filepath.Join(path, "mar-tools")
+
+	if !r.Signed && strings.Contains(file, "win32") && !strings.Contains(file, "/logs/") {
+		path = filepath.Join(path, "unsigned")
+	}
+
+	if r.BuildDir != "" {
+		path = filepath.Join(path, r.BuildDir)
+	}
+
+	if isMarTool(file) {
+		if platform := r.platform(); platform != "" {
+			return r.copyFile(file, filepath.Join(marToolsPath, platform), true, r.FtpCopier)
+		}
+	}
+
+	return r.copyFile(file, path, true, r.FtpCopier)
 }
 
 // ToMobileCandidates copies files to mobile candidates
