@@ -132,8 +132,9 @@ func (r *Release) ToLatest(file string) error {
 }
 
 // ReleaseToDated copies files to dated
-func ReleaseToDated(branch, buildID, product, nightlyDir string, shortDir bool, uploadDir string, files []string) {
+func (r *Release) ToDated(file string) error {
 
+	return nil
 }
 
 // ReleaseToCandidates copies files to candidates
