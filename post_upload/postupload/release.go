@@ -1,6 +1,7 @@
 package postupload
 
 import (
+	"errors"
 	"fmt"
 	"path/filepath"
 	"regexp"
@@ -133,8 +134,20 @@ func (r *Release) ToLatest(file string) error {
 
 // ToDated copies files to dated
 func (r *Release) ToDated(file string) error {
+	bID := buildID(r.BuildID)
+	if !bID.Validate() {
+		return errors.New("buildID is not valid")
+	}
 
-	return nil
+	longDate := fmt.Sprintf("%s-%s-%s-%s-%s-%s-%s",
+		bID.Year(), bID.Month(), bID.Day(), bID.Hour(), bID.Minute(), bID.Second(), r.Branch)
+	longDatedPath := filepath.Join(r.nightlyPath(), bID.Year(), bID.Month(), longDate)
+
+	if r.BuildDir != "" {
+		longDatedPath = filepath.Join(longDatedPath, r.BuildDir)
+	}
+
+	return r.copyFile(file, longDatedPath, false, r.FtpCopier)
 }
 
 // ToCandidates copies files to candidates
