@@ -31,7 +31,7 @@ func main() {
 func contextToOptions(c *cli.Context, r *postupload.Release) {
 	r.Branch = c.String("branch")
 	r.BuildDir = c.String("builddir")
-	r.BuildID = c.String("buildid")
+	r.BuildID = postupload.BuildID(c.String("buildid"))
 	r.BuildNumber = c.String("build-number")
 	r.NightlyDir = c.String("nightly-dir")
 	r.Product = c.String("product")
