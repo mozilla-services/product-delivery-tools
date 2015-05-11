@@ -8,21 +8,27 @@ import (
 
 type TestCopier struct {
 	Src    string
-	Dest   string
+	Dest   []string
 	Copied bool
 }
 
 func (c *TestCopier) Copy(src, dest string) error {
+	if c.Src != "" && c.Src != src {
+		panic("copier src changed without reset")
+	}
 	c.Src = src
-	c.Dest = dest
-	c.Copied = true
+	c.Dest = append(c.Dest, dest)
 	return nil
 }
 
 func (c *TestCopier) Reset() {
 	c.Src = ""
-	c.Dest = ""
-	c.Copied = false
+	c.Dest = []string{}
+}
+
+type FileTest struct {
+	Src   string
+	Dests []string
 }
 
 func NewTestRelease() (*Release, *TestCopier) {
@@ -52,17 +58,16 @@ func TestReleaseToLatest(t *testing.T) {
 	err = rel.ToLatest("/etc/passwd")
 	assert.NotNil(err, "Out of src file should trigger error")
 
-	files := [][]string{
-		[]string{"/tmp/src/subdir/file", "prefix/ftp/product/nightly/latest-l10n/build-dir"},
-		[]string{"/tmp/src/path1/path2/test.xpi", "prefix/ftp/product/nightly/latest-l10n/build-dir/path1/path2"},
-		[]string{"/tmp/src/mar.exe", "prefix/ftp/product/nightly/latest-l10n/build-dir/mar-tools/win32"},
+	files := []FileTest{
+		FileTest{"/tmp/src/subdir/file", []string{"prefix/ftp/product/nightly/latest-l10n/build-dir"}},
+		FileTest{"/tmp/src/path1/path2/test.xpi", []string{"prefix/ftp/product/nightly/latest-l10n/build-dir/path1/path2"}},
+		FileTest{"/tmp/src/mar.exe", []string{"prefix/ftp/product/nightly/latest-l10n/build-dir/mar-tools/win32"}},
 	}
 	for _, file := range files {
 		copier.Reset()
 
-		err = rel.ToLatest(file[0])
-		assert.Nil(err)
-		assert.Equal(file[1], copier.Dest)
+		assert.Nil(rel.ToLatest(file.Src))
+		assert.Equal(file.Dests, copier.Dest)
 	}
 }
 
@@ -73,16 +78,15 @@ func TestReleaseToDated(t *testing.T) {
 	rel.Branch = "l10n"
 	rel.BuildID = "20150101223305"
 
-	files := [][]string{
-		[]string{"/tmp/src/subdir/file", "prefix/ftp/product/nightly/2015/01/2015-01-01-22-33-05-l10n/build-dir"},
-		[]string{"/tmp/src/path1/path2/test.xpi", "prefix/ftp/product/nightly/2015/01/2015-01-01-22-33-05-l10n/build-dir/path1/path2"},
+	files := []FileTest{
+		FileTest{"/tmp/src/subdir/file", []string{"prefix/ftp/product/nightly/2015/01/2015-01-01-22-33-05-l10n/build-dir"}},
+		FileTest{"/tmp/src/path1/path2/test.xpi", []string{"prefix/ftp/product/nightly/2015/01/2015-01-01-22-33-05-l10n/build-dir/path1/path2"}},
 	}
 	for _, file := range files {
 		copier.Reset()
 
-		err := rel.ToDated(file[0])
-		assert.Nil(err)
-		assert.Equal(file[1], copier.Dest)
+		assert.Nil(rel.ToDated(file.Src))
+		assert.Equal(file.Dests, copier.Dest)
 	}
 }
 
@@ -94,15 +98,14 @@ func TestReleaseToCandidateDir(t *testing.T) {
 	rel.BuildNumber = "23"
 	rel.Version = "32"
 
-	files := [][]string{
-		[]string{"/tmp/src/subdir/file", "prefix/ftp/product/nightly/32-candidates/build23/subdir"},
-		[]string{"/tmp/src/mar.exe", "prefix/ftp/product/nightly/32-candidates/build23/mar-tools/win32"},
+	files := []FileTest{
+		FileTest{"/tmp/src/subdir/file", []string{"prefix/ftp/product/nightly/32-candidates/build23/subdir"}},
+		FileTest{"/tmp/src/mar.exe", []string{"prefix/ftp/product/nightly/32-candidates/build23/mar-tools/win32"}},
 	}
 	for _, file := range files {
 		copier.Reset()
 
-		err := rel.ToCandidates(file[0])
-		assert.Nil(err)
-		assert.Equal(file[1], copier.Dest)
+		assert.Nil(rel.ToCandidates(file.Src))
+		assert.Equal(file.Dests, copier.Dest)
 	}
 }
