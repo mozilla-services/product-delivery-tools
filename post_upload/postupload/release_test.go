@@ -85,3 +85,24 @@ func TestReleaseToDated(t *testing.T) {
 		assert.Equal(file[1], copier.Dest)
 	}
 }
+
+func TestReleaseToCandidateDir(t *testing.T) {
+	assert := assert.New(t)
+	rel, copier := NewTestRelease()
+
+	rel.Branch = "l10n"
+	rel.BuildNumber = "23"
+	rel.Version = "32"
+
+	files := [][]string{
+		[]string{"/tmp/src/subdir/file", "prefix/ftp/product/nightly/32-candidates/build23/subdir"},
+		[]string{"/tmp/src/mar.exe", "prefix/ftp/product/nightly/32-candidates/build23/mar-tools/win32"},
+	}
+	for _, file := range files {
+		copier.Reset()
+
+		err := rel.ToCandidates(file[0])
+		assert.Nil(err)
+		assert.Equal(file[1], copier.Dest)
+	}
+}
