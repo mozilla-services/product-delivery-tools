@@ -147,6 +147,10 @@ func (r *Release) ToDated(file string) error {
 		longDatedPath = filepath.Join(longDatedPath, r.BuildDir)
 	}
 
+	if strings.HasSuffix(r.Branch, "l10n") && strings.HasSuffix(file, ".xpi") {
+		return r.copyFile(file, longDatedPath, true, r.FtpCopier)
+	}
+
 	return r.copyFile(file, longDatedPath, false, r.FtpCopier)
 }
 
