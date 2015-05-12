@@ -133,3 +133,27 @@ func TestReleaseToMobileCandidates(t *testing.T) {
 		assert.Equal(file.Dests, copier.Dest, "src: %s", file.Src)
 	}
 }
+
+func TestReleaseToTryBuilds(t *testing.T) {
+	assert := assert.New(t)
+	rel, copier := NewTestRelease()
+
+	rel.Branch = "l10n"
+	rel.BuildNumber = "23"
+	rel.Version = "32"
+	rel.Signed = false
+	rel.Who = "testuser"
+	rel.Revision = "r33"
+
+	files := []FileTest{
+		FileTest{"/tmp/src/subdir/file", []string{"prefix/ftp/product/try-builds/testuser-r33/build-dir"}},
+		FileTest{"/tmp/src/subdir/win32-file", []string{"prefix/ftp/product/try-builds/testuser-r33/build-dir"}},
+		FileTest{"/tmp/src/mar.exe", []string{"prefix/ftp/product/try-builds/testuser-r33/build-dir"}},
+	}
+	for _, file := range files {
+		copier.Reset()
+
+		assert.Nil(rel.ToTryBuilds(file.Src))
+		assert.Equal(file.Dests, copier.Dest, "src: %s", file.Src)
+	}
+}
