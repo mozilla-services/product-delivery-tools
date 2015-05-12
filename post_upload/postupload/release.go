@@ -163,9 +163,7 @@ func (r *Release) ToCandidates(file string) error {
 		path = filepath.Join(path, "unsigned")
 	}
 
-	if r.BuildDir != "" {
-		path = filepath.Join(path, r.BuildDir)
-	}
+	path = filepath.Join(path, r.BuildDir)
 
 	if isMarTool(file) {
 		if platform := r.platform(); platform != "" {
@@ -178,8 +176,8 @@ func (r *Release) ToCandidates(file string) error {
 
 // ToMobileCandidates copies files to mobile candidates
 func (r *Release) ToMobileCandidates(file string) error {
-	return nil
-
+	path := filepath.Join(r.nightlyPath(), r.Version+"-candidates", "build"+r.BuildNumber, r.BuildDir)
+	return r.copyFile(file, path, true, r.FtpCopier)
 }
 
 // ToTinderboxBuilds copies files to tinderbox builds
