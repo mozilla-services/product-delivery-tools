@@ -101,7 +101,7 @@ func doMain(c *cli.Context) {
 		}
 	}
 
-	release := postupload.NewS3Release("", "")
+	release := postupload.NewS3Release("")
 	contextToOptions(c, release)
 	release.SourceDir = uploadDir
 

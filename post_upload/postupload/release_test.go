@@ -35,9 +35,7 @@ func NewTestRelease() (*Release, *TestCopier) {
 	copier := new(TestCopier)
 	return &Release{
 		FtpPrefix:          "prefix/ftp",
-		PvtPrefix:          "prefix/pvt",
 		FtpCopier:          copier,
-		PvtCopier:          copier,
 		SourceDir:          "/tmp/src",
 		BuildDir:           "build-dir",
 		Product:            "product",

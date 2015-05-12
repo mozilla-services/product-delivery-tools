@@ -16,10 +16,8 @@ type Release struct {
 	SourceDir string
 
 	FtpCopier Copier
-	PvtCopier Copier
 
 	FtpPrefix string
-	PvtPrefix string
 
 	Branch             string
 	BuildDir           string
@@ -37,12 +35,10 @@ type Release struct {
 }
 
 // NewS3Release returns a new release with s3 copiers.
-func NewS3Release(ftpBucket, pvtBucket string) *Release {
+func NewS3Release(ftpBucket string) *Release {
 	return &Release{
 		FtpCopier: &S3Copier{Bucket: ftpBucket},
-		PvtCopier: &S3Copier{Bucket: pvtBucket},
 	}
-
 }
 
 func (r *Release) nightlyPath() string {
@@ -55,10 +51,6 @@ func (r *Release) tinderboxBuildsPath() string {
 
 func (r *Release) candidatesPath() string {
 	return filepath.Join(r.FtpPrefix, r.Product, "candidates")
-}
-
-func (r *Release) pvtBuildsPath() string {
-	return filepath.Join(r.PvtPrefix, r.Product, r.TinderboxBuildsDir)
 }
 
 func (r *Release) tryBuildsPath() string {
