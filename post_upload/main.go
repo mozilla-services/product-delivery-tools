@@ -34,7 +34,6 @@ func contextToOptions(c *cli.Context, r *postupload.Release) {
 	r.BuildID = postupload.BuildID(c.String("buildid"))
 	r.BuildNumber = c.String("build-number")
 	r.NightlyDir = c.String("nightly-dir")
-	r.Product = c.String("product")
 	r.Revision = c.String("revision")
 	r.ShortDir = !c.Bool("no-shortdir")
 	r.Signed = c.Bool("signed")
@@ -44,9 +43,10 @@ func contextToOptions(c *cli.Context, r *postupload.Release) {
 	r.Who = c.String("who")
 }
 
-func eachFile(files []string, f func(string) error) {
+func eachFile(files []string, f func(string) ([]string, error)) {
 	for _, file := range files {
-		if err := f(file); err != nil {
+		_, err := f(file)
+		if err != nil {
 			log.Println(err)
 		}
 	}
@@ -101,9 +101,8 @@ func doMain(c *cli.Context) {
 		}
 	}
 
-	release := postupload.NewS3Release("")
+	release := postupload.NewRelease(uploadDir, c.String("product"))
 	contextToOptions(c, release)
-	release.SourceDir = uploadDir
 
 	if c.Bool("release-to-latest") {
 		eachFile(files, release.ToLatest)
