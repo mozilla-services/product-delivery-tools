@@ -15,10 +15,6 @@ var partialMarRe = regexp.MustCompile(`\.partial\..*\.mar(\.asc)?$`)
 type Release struct {
 	SourceDir string
 
-	FtpCopier Copier
-
-	FtpPrefix string
-
 	Branch             string
 	BuildDir           string
 	BuildID            BuildID
@@ -35,26 +31,27 @@ type Release struct {
 }
 
 // NewS3Release returns a new release with s3 copiers.
-func NewS3Release(ftpBucket string) *Release {
+func NewRelease(sourceDir, product string) *Release {
 	return &Release{
-		FtpCopier: &S3Copier{Bucket: ftpBucket},
+		Product:   product,
+		SourceDir: sourceDir,
 	}
 }
 
 func (r *Release) nightlyPath() string {
-	return filepath.Join(r.FtpPrefix, r.Product, r.NightlyDir)
+	return filepath.Join(r.Product, r.NightlyDir)
 }
 
 func (r *Release) tinderboxBuildsPath() string {
-	return filepath.Join(r.FtpPrefix, r.Product, "tinderbox-builds", r.TinderboxBuildsDir)
+	return filepath.Join(r.Product, "tinderbox-builds", r.TinderboxBuildsDir)
 }
 
 func (r *Release) candidatesPath() string {
-	return filepath.Join(r.FtpPrefix, r.Product, "candidates")
+	return filepath.Join(r.Product, "candidates")
 }
 
 func (r *Release) tryBuildsPath() string {
-	return filepath.Join(r.FtpPrefix, r.Product, "try-builds", r.Who+"-"+r.Revision, r.BuildDir)
+	return filepath.Join(r.Product, "try-builds", r.Who+"-"+r.Revision, r.BuildDir)
 }
 
 func (r *Release) platform() string {
@@ -76,25 +73,25 @@ func isMarTool(path string) bool {
 	return false
 }
 
-func (r *Release) copyFile(src, dest string, preserveDir bool, copier Copier) error {
+func (r *Release) copyFile(src, dest string, preserveDir bool) ([]string, error) {
 	if !strings.HasPrefix(src, r.SourceDir) {
-		return fmt.Errorf("%s not in %s", src, r.SourceDir)
+		return nil, fmt.Errorf("%s not in %s", src, r.SourceDir)
 	}
 	if preserveDir {
 		relPath, err := filepath.Rel(r.SourceDir, filepath.Dir(src))
 		if err != nil {
-			return err
+			return nil, err
 		}
 		dest = filepath.Join(dest, relPath)
 	}
 
-	return copier.Copy(src, dest)
+	return []string{dest}, nil
 }
 
 // ToLatest copies files to nightly path
-func (r *Release) ToLatest(file string) error {
+func (r *Release) ToLatest(file string) ([]string, error) {
 	if r.Branch == "" {
-		return fmt.Errorf("ToLatest: Branch cannot be empty")
+		return nil, fmt.Errorf("ToLatest: Branch cannot be empty")
 	}
 	latestPath := filepath.Join(r.nightlyPath(), "latest-"+r.Branch)
 	if r.BuildDir != "" {
@@ -103,32 +100,32 @@ func (r *Release) ToLatest(file string) error {
 	marToolsPath := filepath.Join(latestPath, "mar-tools")
 
 	if strings.HasSuffix(file, "crashreporter-symbols.zip") {
-		return nil
+		return nil, nil
 	}
 
 	if partialMarRe.MatchString(file) {
-		return nil
+		return nil, nil
 	}
 
 	if strings.HasSuffix(r.Branch, "l10n") && strings.HasSuffix(file, ".xpi") {
-		return r.copyFile(file, latestPath, true, r.FtpCopier)
+		return r.copyFile(file, latestPath, true)
 	}
 
 	if isMarTool(file) {
 		if platform := r.platform(); platform != "" {
-			return r.copyFile(file, filepath.Join(marToolsPath, platform), false, r.FtpCopier)
+			return r.copyFile(file, filepath.Join(marToolsPath, platform), false)
 		}
-		return nil
+		return nil, nil
 	}
 
-	return r.copyFile(file, latestPath, false, r.FtpCopier)
+	return r.copyFile(file, latestPath, false)
 }
 
 // ToDated copies files to dated
-func (r *Release) ToDated(file string) error {
+func (r *Release) ToDated(file string) ([]string, error) {
 	bID := BuildID(r.BuildID)
 	if !bID.Validate() {
-		return errors.New("buildID is not valid")
+		return nil, errors.New("buildID is not valid")
 	}
 
 	longDate := fmt.Sprintf("%s-%s-%s-%s-%s-%s-%s",
@@ -140,14 +137,14 @@ func (r *Release) ToDated(file string) error {
 	}
 
 	if strings.HasSuffix(r.Branch, "l10n") && strings.HasSuffix(file, ".xpi") {
-		return r.copyFile(file, longDatedPath, true, r.FtpCopier)
+		return r.copyFile(file, longDatedPath, true)
 	}
 
-	return r.copyFile(file, longDatedPath, false, r.FtpCopier)
+	return r.copyFile(file, longDatedPath, false)
 }
 
 // ToCandidates copies files to candidates
-func (r *Release) ToCandidates(file string) error {
+func (r *Release) ToCandidates(file string) ([]string, error) {
 	path := filepath.Join(r.nightlyPath(), r.Version+"-candidates", "build"+r.BuildNumber)
 	marToolsPath := filepath.Join(path, "mar-tools")
 
@@ -159,41 +156,41 @@ func (r *Release) ToCandidates(file string) error {
 
 	if isMarTool(file) {
 		if platform := r.platform(); platform != "" {
-			return r.copyFile(file, filepath.Join(marToolsPath, platform), true, r.FtpCopier)
+			return r.copyFile(file, filepath.Join(marToolsPath, platform), true)
 		}
 	}
 
-	return r.copyFile(file, path, true, r.FtpCopier)
+	return r.copyFile(file, path, true)
 }
 
 // ToMobileCandidates copies files to mobile candidates
-func (r *Release) ToMobileCandidates(file string) error {
+func (r *Release) ToMobileCandidates(file string) ([]string, error) {
 	path := filepath.Join(r.nightlyPath(), r.Version+"-candidates", "build"+r.BuildNumber, r.BuildDir)
-	return r.copyFile(file, path, true, r.FtpCopier)
+	return r.copyFile(file, path, true)
 }
 
 // ToTinderboxBuilds copies files to tinderbox builds
-func (r *Release) ToTinderboxBuilds(file string) error {
-	return nil
+func (r *Release) ToTinderboxBuilds(file string) ([]string, error) {
+	return nil, nil
 
 }
 
 // ToDatedTinderboxBuilds copies files to dated tinderbox builds
-func (r *Release) ToDatedTinderboxBuilds(file string) error {
-	return nil
+func (r *Release) ToDatedTinderboxBuilds(file string) ([]string, error) {
+	return nil, nil
 
 }
 
 // ToTryBuilds copies files to try builds
-func (r *Release) ToTryBuilds(file string) error {
+func (r *Release) ToTryBuilds(file string) ([]string, error) {
 	if r.Who == "" {
-		return errors.New("Who cannot be empty")
+		return nil, errors.New("Who cannot be empty")
 	}
 	if r.Revision == "" {
-		return errors.New("Revision cannot be empty")
+		return nil, errors.New("Revision cannot be empty")
 	}
 	if r.Product == "" {
-		return errors.New("Product cannot be empty")
+		return nil, errors.New("Product cannot be empty")
 	}
-	return r.copyFile(file, r.tryBuildsPath(), false, r.FtpCopier)
+	return r.copyFile(file, r.tryBuildsPath(), false)
 }
