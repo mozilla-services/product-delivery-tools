@@ -194,5 +194,14 @@ func (r *Release) ToDatedTinderboxBuilds(file string) error {
 
 // ToTryBuilds copies files to try builds
 func (r *Release) ToTryBuilds(file string) error {
-	return nil
+	if r.Who == "" {
+		return errors.New("Who cannot be empty")
+	}
+	if r.Revision == "" {
+		return errors.New("Revision cannot be empty")
+	}
+	if r.Product == "" {
+		return errors.New("Product cannot be empty")
+	}
+	return r.copyFile(file, r.tryBuildsPath(), false, r.FtpCopier)
 }
