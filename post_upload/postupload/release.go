@@ -30,7 +30,7 @@ type Release struct {
 	Who                string
 }
 
-// NewS3Release returns a new release with s3 copiers.
+// NewRelease returns a new release
 func NewRelease(sourceDir, product string) *Release {
 	return &Release{
 		Product:   product,
