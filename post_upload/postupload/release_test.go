@@ -90,7 +90,7 @@ func TestReleaseToDated(t *testing.T) {
 	}
 }
 
-func TestReleaseToCandidateDir(t *testing.T) {
+func TestReleaseToCandidates(t *testing.T) {
 	assert := assert.New(t)
 	rel, copier := NewTestRelease()
 
@@ -109,5 +109,27 @@ func TestReleaseToCandidateDir(t *testing.T) {
 
 		assert.Nil(rel.ToCandidates(file.Src))
 		assert.Equal(file.Dests, copier.Dest)
+	}
+}
+
+func TestReleaseToMobileCandidates(t *testing.T) {
+	assert := assert.New(t)
+	rel, copier := NewTestRelease()
+
+	rel.Branch = "l10n"
+	rel.BuildNumber = "23"
+	rel.Version = "32"
+	rel.Signed = false
+
+	files := []FileTest{
+		FileTest{"/tmp/src/subdir/file", []string{"prefix/ftp/product/nightly/32-candidates/build23/build-dir/subdir"}},
+		FileTest{"/tmp/src/subdir/win32-file", []string{"prefix/ftp/product/nightly/32-candidates/build23/build-dir/subdir"}},
+		FileTest{"/tmp/src/mar.exe", []string{"prefix/ftp/product/nightly/32-candidates/build23/build-dir"}},
+	}
+	for _, file := range files {
+		copier.Reset()
+
+		assert.Nil(rel.ToMobileCandidates(file.Src))
+		assert.Equal(file.Dests, copier.Dest, "src: %s", file.Src)
 	}
 }
