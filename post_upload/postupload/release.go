@@ -88,7 +88,7 @@ func (r *Release) copyFile(src, dest string, preserveDir bool) ([]string, error)
 	return []string{dest}, nil
 }
 
-// ToLatest copies files to nightly path
+// ToLatest returns destinations for nightly path
 func (r *Release) ToLatest(file string) ([]string, error) {
 	if r.Branch == "" {
 		return nil, fmt.Errorf("ToLatest: Branch cannot be empty")
@@ -121,7 +121,7 @@ func (r *Release) ToLatest(file string) ([]string, error) {
 	return r.copyFile(file, latestPath, false)
 }
 
-// ToDated copies files to dated
+// ToDated returns destinations for dated
 func (r *Release) ToDated(file string) ([]string, error) {
 	bID := BuildID(r.BuildID)
 	if !bID.Validate() {
@@ -143,7 +143,7 @@ func (r *Release) ToDated(file string) ([]string, error) {
 	return r.copyFile(file, longDatedPath, false)
 }
 
-// ToCandidates copies files to candidates
+// ToCandidates returns destinations for candidates
 func (r *Release) ToCandidates(file string) ([]string, error) {
 	path := filepath.Join(r.nightlyPath(), r.Version+"-candidates", "build"+r.BuildNumber)
 	marToolsPath := filepath.Join(path, "mar-tools")
@@ -163,25 +163,25 @@ func (r *Release) ToCandidates(file string) ([]string, error) {
 	return r.copyFile(file, path, true)
 }
 
-// ToMobileCandidates copies files to mobile candidates
+// ToMobileCandidates returns destinations for mobile candidates
 func (r *Release) ToMobileCandidates(file string) ([]string, error) {
 	path := filepath.Join(r.nightlyPath(), r.Version+"-candidates", "build"+r.BuildNumber, r.BuildDir)
 	return r.copyFile(file, path, true)
 }
 
-// ToTinderboxBuilds copies files to tinderbox builds
+// ToTinderboxBuilds returns destinations for tinderbox builds
 func (r *Release) ToTinderboxBuilds(file string) ([]string, error) {
 	return nil, nil
 
 }
 
-// ToDatedTinderboxBuilds copies files to dated tinderbox builds
+// ToDatedTinderboxBuilds returns destinations for dated tinderbox builds
 func (r *Release) ToDatedTinderboxBuilds(file string) ([]string, error) {
 	return nil, nil
 
 }
 
-// ToTryBuilds copies files to try builds
+// ToTryBuilds returns destinations for try builds
 func (r *Release) ToTryBuilds(file string) ([]string, error) {
 	if r.Who == "" {
 		return nil, errors.New("Who cannot be empty")
