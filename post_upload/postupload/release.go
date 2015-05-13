@@ -85,6 +85,8 @@ func (r *Release) copyFile(src, dest string, preserveDir bool) ([]string, error)
 		dest = filepath.Join(dest, relPath)
 	}
 
+	dest = filepath.Join(dest, filepath.Base(src))
+
 	return []string{dest}, nil
 }
 
@@ -171,13 +173,34 @@ func (r *Release) ToMobileCandidates(file string) ([]string, error) {
 
 // ToTinderboxBuilds returns destinations for tinderbox builds
 func (r *Release) ToTinderboxBuilds(file string) ([]string, error) {
-	return nil, nil
+	path := filepath.Join(r.tinderboxBuildsPath(), r.BuildDir)
+	if strings.HasSuffix(file, ".mar") {
+		return nil, nil
+	}
 
+	if strings.HasSuffix(r.TinderboxBuildsDir, "l10n") && strings.HasSuffix(file, ".xpi") {
+		return r.copyFile(file, path, true)
+	}
+
+	return r.copyFile(file, path, false)
 }
 
 // ToDatedTinderboxBuilds returns destinations for dated tinderbox builds
 func (r *Release) ToDatedTinderboxBuilds(file string) ([]string, error) {
-	return nil, nil
+	if r.BuildID == nil {
+		return nil, errors.New("BuildID cannot be empty")
+	}
+	path := filepath.Join(r.tinderboxBuildsPath(), fmt.Sprintf("%d", r.BuildID.Time().Unix()), r.BuildDir)
+
+	if strings.HasSuffix(file, ".mar") {
+		return nil, nil
+	}
+
+	if strings.HasSuffix(r.TinderboxBuildsDir, "l10n") && strings.HasSuffix(file, ".xpi") {
+		return r.copyFile(file, path, true)
+	}
+
+	return r.copyFile(file, path, false)
 
 }
 
