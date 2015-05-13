@@ -142,3 +142,40 @@ func TestReleaseToTryBuilds(t *testing.T) {
 		assert.Equal(file.Dests, dests)
 	}
 }
+
+func TestReleaseToTinderboxBuilds(t *testing.T) {
+	assert := assert.New(t)
+	rel := NewTestRelease()
+	rel.TinderboxBuildsDir = "mozilla-aurora-l10n"
+
+	files := []FileTest{
+		FileTest{"/tmp/src/subdir/file", []string{"firefox/tinderbox-builds/mozilla-aurora-l10n/build-dir/file"}},
+		FileTest{"/tmp/src/subdir/file.xpi", []string{"firefox/tinderbox-builds/mozilla-aurora-l10n/build-dir/subdir/file.xpi"}},
+		FileTest{"/tmp/src/subdir/file.mar", nil},
+	}
+	for _, file := range files {
+		dests, err := rel.ToTinderboxBuilds(file.Src)
+		assert.Nil(err)
+		assert.Equal(file.Dests, dests)
+	}
+}
+
+func TestReleaseToDatedTinderboxBuilds(t *testing.T) {
+	assert := assert.New(t)
+	rel := NewTestRelease()
+	rel.TinderboxBuildsDir = "mozilla-aurora-l10n"
+	rel.BuildID = mustBuildID("20150513000000")
+
+	println(rel.BuildID.Time().String())
+
+	files := []FileTest{
+		FileTest{"/tmp/src/subdir/file", []string{"firefox/tinderbox-builds/mozilla-aurora-l10n/1431500400/build-dir/file"}},
+		FileTest{"/tmp/src/subdir/file.xpi", []string{"firefox/tinderbox-builds/mozilla-aurora-l10n/1431500400/build-dir/subdir/file.xpi"}},
+		FileTest{"/tmp/src/subdir/file.mar", nil},
+	}
+	for _, file := range files {
+		dests, err := rel.ToDatedTinderboxBuilds(file.Src)
+		assert.Nil(err)
+		assert.Equal(file.Dests, dests)
+	}
+}
