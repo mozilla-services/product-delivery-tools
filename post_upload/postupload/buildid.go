@@ -13,6 +13,7 @@ type BuildID struct {
 }
 
 // NewBuildID returns a new *BuildID
+//
 // id must be at least 14 characters long
 func NewBuildID(id string) (*BuildID, error) {
 	if len(id) < 14 {
