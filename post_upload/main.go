@@ -28,10 +28,19 @@ func main() {
 	app.Run(os.Args)
 }
 
-func contextToOptions(c *cli.Context, r *postupload.Release) {
+func contextToOptions(c *cli.Context, r *postupload.Release) error {
 	r.Branch = c.String("branch")
 	r.BuildDir = c.String("builddir")
-	r.BuildID = postupload.BuildID(c.String("buildid"))
+
+	if c.String("buildid") == "" {
+		r.BuildID = nil
+	} else {
+		buildID, err := postupload.NewBuildID(c.String("buildid"))
+		if err != nil {
+			return fmt.Errorf("error in BuildID, %s", err)
+		}
+		r.BuildID = buildID
+	}
 	r.BuildNumber = c.String("build-number")
 	r.NightlyDir = c.String("nightly-dir")
 	r.Revision = c.String("revision")
@@ -41,6 +50,8 @@ func contextToOptions(c *cli.Context, r *postupload.Release) {
 	r.TinderboxBuildsDir = c.String("tinderbox-builds-dir")
 	r.Version = c.String("version")
 	r.Who = c.String("who")
+
+	return nil
 }
 
 func eachFile(files []string, f func(string) ([]string, error)) {
@@ -86,7 +97,7 @@ func doMain(c *cli.Context) {
 
 	if len(errs) > 0 {
 		for _, err := range errs {
-			fmt.Println("Error:", err)
+			log.Println("Error:", err)
 		}
 		os.Exit(1)
 	}
@@ -96,13 +107,15 @@ func doMain(c *cli.Context) {
 
 	for _, f := range files {
 		if _, err := os.Stat(f); os.IsNotExist(err) {
-			fmt.Printf("Error: %s does not exist.\n", f)
-			os.Exit(1)
+			log.Fatalf("Error: %s does not exist.\n", f)
 		}
 	}
 
 	release := postupload.NewRelease(uploadDir, c.String("product"))
-	contextToOptions(c, release)
+	err := contextToOptions(c, release)
+	if err != nil {
+		log.Fatal("Error parsing options:", err)
+	}
 
 	if c.Bool("release-to-latest") {
 		eachFile(files, release.ToLatest)
