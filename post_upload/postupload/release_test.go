@@ -45,12 +45,23 @@ func TestReleaseToLatest(t *testing.T) {
 	}
 }
 
+func mustBuildID(b *BuildID, err error) *BuildID {
+	if err != nil {
+		panic(err)
+	}
+	return b
+}
+
 func TestReleaseToDated(t *testing.T) {
 	assert := assert.New(t)
 	rel := NewTestRelease()
 
 	rel.Branch = "l10n"
-	rel.BuildID = "20150101223305"
+	assert.NotPanics(func() {
+		_, err := rel.ToDated("/tmp/src/file")
+		assert.NotNil(err)
+	})
+	rel.BuildID = mustBuildID(NewBuildID("20150101223305"))
 
 	files := []FileTest{
 		FileTest{"/tmp/src/subdir/file", []string{"product/nightly/2015/01/2015-01-01-22-33-05-l10n/build-dir"}},

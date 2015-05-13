@@ -2,6 +2,7 @@ package main
 
 import "github.com/codegangsta/cli"
 
+// Flags for post_upload
 var Flags = []cli.Flag{
 	cli.StringFlag{Name: "product, p", Usage: "Set product name to build paths properly."},
 	cli.StringFlag{Name: "version, v", Usage: "Set version number to build paths properly."},

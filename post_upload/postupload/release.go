@@ -17,7 +17,7 @@ type Release struct {
 
 	Branch             string
 	BuildDir           string
-	BuildID            BuildID
+	BuildID            *BuildID
 	BuildNumber        string
 	NightlyDir         string
 	Product            string
@@ -123,10 +123,10 @@ func (r *Release) ToLatest(file string) ([]string, error) {
 
 // ToDated returns destinations for dated
 func (r *Release) ToDated(file string) ([]string, error) {
-	bID := BuildID(r.BuildID)
-	if !bID.Validate() {
-		return nil, errors.New("buildID is not valid")
+	if r.BuildID == nil {
+		return nil, errors.New("BuildID cannot be empty")
 	}
+	bID := r.BuildID
 
 	longDate := fmt.Sprintf("%s-%s-%s-%s-%s-%s-%s",
 		bID.Year(), bID.Month(), bID.Day(), bID.Hour(), bID.Minute(), bID.Second(), r.Branch)
