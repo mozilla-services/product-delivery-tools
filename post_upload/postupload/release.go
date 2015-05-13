@@ -85,6 +85,8 @@ func (r *Release) copyFile(src, dest string, preserveDir bool) ([]string, error)
 		dest = filepath.Join(dest, relPath)
 	}
 
+	dest = filepath.Join(dest, filepath.Base(src))
+
 	return []string{dest}, nil
 }
 
