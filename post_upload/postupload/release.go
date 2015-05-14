@@ -73,7 +73,7 @@ func isMarTool(path string) bool {
 	return false
 }
 
-func (r *Release) copyFile(src, dest string, preserveDir bool) ([]string, error) {
+func (r *Release) resolvePath(src, dest string, preserveDir bool) ([]string, error) {
 	if !strings.HasPrefix(src, r.SourceDir) {
 		return nil, fmt.Errorf("%s not in %s", src, r.SourceDir)
 	}
@@ -110,17 +110,17 @@ func (r *Release) ToLatest(file string) ([]string, error) {
 	}
 
 	if strings.HasSuffix(r.Branch, "l10n") && strings.HasSuffix(file, ".xpi") {
-		return r.copyFile(file, latestPath, true)
+		return r.resolvePath(file, latestPath, true)
 	}
 
 	if isMarTool(file) {
 		if platform := r.platform(); platform != "" {
-			return r.copyFile(file, filepath.Join(marToolsPath, platform), false)
+			return r.resolvePath(file, filepath.Join(marToolsPath, platform), false)
 		}
 		return nil, nil
 	}
 
-	return r.copyFile(file, latestPath, false)
+	return r.resolvePath(file, latestPath, false)
 }
 
 // ToDated returns destinations for dated
@@ -139,10 +139,10 @@ func (r *Release) ToDated(file string) ([]string, error) {
 	}
 
 	if strings.HasSuffix(r.Branch, "l10n") && strings.HasSuffix(file, ".xpi") {
-		return r.copyFile(file, longDatedPath, true)
+		return r.resolvePath(file, longDatedPath, true)
 	}
 
-	return r.copyFile(file, longDatedPath, false)
+	return r.resolvePath(file, longDatedPath, false)
 }
 
 // ToCandidates returns destinations for candidates
@@ -158,17 +158,17 @@ func (r *Release) ToCandidates(file string) ([]string, error) {
 
 	if isMarTool(file) {
 		if platform := r.platform(); platform != "" {
-			return r.copyFile(file, filepath.Join(marToolsPath, platform), true)
+			return r.resolvePath(file, filepath.Join(marToolsPath, platform), true)
 		}
 	}
 
-	return r.copyFile(file, path, true)
+	return r.resolvePath(file, path, true)
 }
 
 // ToMobileCandidates returns destinations for mobile candidates
 func (r *Release) ToMobileCandidates(file string) ([]string, error) {
 	path := filepath.Join(r.nightlyPath(), r.Version+"-candidates", "build"+r.BuildNumber, r.BuildDir)
-	return r.copyFile(file, path, true)
+	return r.resolvePath(file, path, true)
 }
 
 // ToTinderboxBuilds returns destinations for tinderbox builds
@@ -179,10 +179,10 @@ func (r *Release) ToTinderboxBuilds(file string) ([]string, error) {
 	}
 
 	if strings.HasSuffix(r.TinderboxBuildsDir, "l10n") && strings.HasSuffix(file, ".xpi") {
-		return r.copyFile(file, path, true)
+		return r.resolvePath(file, path, true)
 	}
 
-	return r.copyFile(file, path, false)
+	return r.resolvePath(file, path, false)
 }
 
 // ToDatedTinderboxBuilds returns destinations for dated tinderbox builds
@@ -197,10 +197,10 @@ func (r *Release) ToDatedTinderboxBuilds(file string) ([]string, error) {
 	}
 
 	if strings.HasSuffix(r.TinderboxBuildsDir, "l10n") && strings.HasSuffix(file, ".xpi") {
-		return r.copyFile(file, path, true)
+		return r.resolvePath(file, path, true)
 	}
 
-	return r.copyFile(file, path, false)
+	return r.resolvePath(file, path, false)
 
 }
 
@@ -215,5 +215,5 @@ func (r *Release) ToTryBuilds(file string) ([]string, error) {
 	if r.Product == "" {
 		return nil, errors.New("Product cannot be empty")
 	}
-	return r.copyFile(file, r.tryBuildsPath(), false)
+	return r.resolvePath(file, r.tryBuildsPath(), false)
 }
