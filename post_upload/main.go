@@ -86,7 +86,7 @@ func doMain(c *cli.Context) {
 		errs = append(errs, errors.New("you must specify a directory and at least one file"))
 	}
 
-	requireArgs("product")
+	requireArgs("product", "bucket")
 	boolRequireArgs("release-to-latest", "branch")
 	boolRequireArgs("release-to-dated", "branch", "buildid", "nightly-dir")
 	boolRequireArgs("release-to-candidates-dir", "version", "build_number")
@@ -130,7 +130,6 @@ func doMain(c *cli.Context) {
 
 	if c.Bool("release-to-mobile-candidates-dir") {
 		eachFile(files, release.ToMobileCandidates)
-
 	}
 
 	if c.Bool("releaset-to-tinderbox-builds") {
