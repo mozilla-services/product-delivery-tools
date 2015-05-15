@@ -135,11 +135,15 @@ func doMain(c *cli.Context) {
 			dests = append(dests, actionDests...)
 		}
 
-		if c.Bool("dry-run") {
-			for _, dest := range dests {
-				fmt.Printf("%s -> %s:%s\n", file, bucketPrefix+"-"+destToBucket(dest), dest)
+		for _, dest := range dests {
+			bucket := bucketPrefix + "-" + destToBucket(dest)
+			if c.Bool("dry-run") {
+				fmt.Printf("%s -> %s:%s\n", file, bucket, dest)
+				continue
 			}
-			continue
+			if err := s3CopyFile(file, bucket, dest); err != nil {
+				log.Println(err)
+			}
 		}
 	}
 
