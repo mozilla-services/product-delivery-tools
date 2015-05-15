@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -87,7 +86,8 @@ func doMain(c *cli.Context) {
 	}
 
 	if len(c.Args()) < 2 {
-		errs = append(errs, errors.New("you must specify a directory and at least one file"))
+		log.Println("you must specify a directory and at least one file")
+		os.Exit(1)
 	}
 
 	uploadDir := c.Args()[0]
@@ -117,6 +117,7 @@ func doMain(c *cli.Context) {
 		log.Fatal("Error parsing options:", err)
 	}
 
+	bucketPrefix := c.String("bucket-prefix")
 	for _, f := range files {
 		if _, err := os.Stat(f); os.IsNotExist(err) {
 			log.Fatalf("Error: %s does not exist.\n", f)
@@ -133,5 +134,13 @@ func doMain(c *cli.Context) {
 			}
 			dests = append(dests, actionDests...)
 		}
+
+		if c.Bool("dry-run") {
+			for _, dest := range dests {
+				fmt.Printf("%s -> %s:%s\n", file, bucketPrefix+"-"+destToBucket(dest), dest)
+			}
+			continue
+		}
 	}
+
 }
