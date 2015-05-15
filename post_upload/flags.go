@@ -31,4 +31,5 @@ var Flags = []cli.Flag{
 	cli.BoolFlag{Name: "release-to-tinderbox-dated-builds", Usage: "Copy files to $product/tinderbox-builds/$tinderbox_builds_dir/$timestamp"},
 	cli.BoolFlag{Name: "release-to-try-builds", Usage: "Copy files to try-builds/$who-$revision"},
 	cli.BoolFlag{Name: "signed", Usage: "Don't use unsigned directory for uploaded files"},
+	cli.BoolFlag{Name: "dry-run", Usage: "Print the operations which would happen."},
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -63,6 +62,8 @@ func eachFile(files []string, f func(string) ([]string, error)) {
 	}
 }
 
+type pathFunc func(string) ([]string, error)
+
 func doMain(c *cli.Context) {
 	errs := []error{}
 	requireArgs := func(args ...string) (hasErrors bool) {
@@ -72,28 +73,37 @@ func doMain(c *cli.Context) {
 				errs = append(errs, fmt.Errorf("--%s must be set", arg))
 			}
 		}
-		return
+		return !hasErrors
 	}
 
-	boolRequireArgs := func(boolArg string, args ...string) bool {
-		if c.Bool(boolArg) {
-			return requireArgs(args...)
+	pathActions := []pathFunc{}
+	boolRequireArgs := func(f pathFunc, boolArg string, args ...string) bool {
+		if c.Bool(boolArg) && requireArgs(args...) {
+			pathActions = append(pathActions, f)
+			return true
 		}
 		return false
 	}
 
 	if len(c.Args()) < 2 {
-		errs = append(errs, errors.New("you must specify a directory and at least one file"))
+		log.Println("you must specify a directory and at least one file")
+		os.Exit(1)
 	}
 
+	uploadDir := c.Args()[0]
+	files := c.Args()[1:]
+
 	requireArgs("product", "bucket-prefix")
-	boolRequireArgs("release-to-latest", "branch")
-	boolRequireArgs("release-to-dated", "branch", "buildid", "nightly-dir")
-	boolRequireArgs("release-to-candidates-dir", "version", "build_number")
-	boolRequireArgs("release-to-mobile-candidates-dir", "version", "build-number", "builddir")
-	boolRequireArgs("release-to-tinderbox-builds", "tinderbox-builds-dir")
-	boolRequireArgs("release-to-dated-tinderbox-builds", "tinderbox-builds-dir", "buildid")
-	boolRequireArgs("release-to-try-builds", "who", "revision", "builddir")
+
+	release := postupload.NewRelease(uploadDir, c.String("product"))
+
+	boolRequireArgs(release.ToLatest, "release-to-latest", "branch")
+	boolRequireArgs(release.ToDated, "release-to-dated", "branch", "buildid", "nightly-dir")
+	boolRequireArgs(release.ToCandidates, "release-to-candidates-dir", "version", "build-number")
+	boolRequireArgs(release.ToMobileCandidates, "release-to-mobile-candidates-dir", "version", "build-number", "builddir")
+	boolRequireArgs(release.ToTinderboxBuilds, "release-to-tinderbox-builds", "tinderbox-builds-dir")
+	boolRequireArgs(release.ToDatedTinderboxBuilds, "release-to-dated-tinderbox-builds", "tinderbox-builds-dir", "buildid")
+	boolRequireArgs(release.ToTryBuilds, "release-to-try-builds", "who", "revision", "builddir")
 
 	if len(errs) > 0 {
 		for _, err := range errs {
@@ -102,45 +112,39 @@ func doMain(c *cli.Context) {
 		os.Exit(1)
 	}
 
-	uploadDir := c.Args()[0]
-	files := c.Args()[1:]
+	err := contextToOptions(c, release)
+	if err != nil {
+		log.Fatal("Error parsing options:", err)
+	}
 
+	bucketPrefix := c.String("bucket-prefix")
 	for _, f := range files {
 		if _, err := os.Stat(f); os.IsNotExist(err) {
 			log.Fatalf("Error: %s does not exist.\n", f)
 		}
 	}
 
-	release := postupload.NewRelease(uploadDir, c.String("product"))
-	err := contextToOptions(c, release)
-	if err != nil {
-		log.Fatal("Error parsing options:", err)
+	for _, file := range files {
+		dests := []string{}
+		for _, action := range pathActions {
+			actionDests, err := action(file)
+			if err != nil {
+				log.Printf("file: %s, err: %s", file, err)
+				continue
+			}
+			dests = append(dests, actionDests...)
+		}
+
+		for _, dest := range dests {
+			bucket := bucketPrefix + "-" + destToBucket(dest)
+			if c.Bool("dry-run") {
+				fmt.Printf("%s -> %s:%s\n", file, bucket, dest)
+				continue
+			}
+			if err := s3CopyFile(file, bucket, dest); err != nil {
+				log.Println(err)
+			}
+		}
 	}
 
-	if c.Bool("release-to-latest") {
-		eachFile(files, release.ToLatest)
-	}
-	if c.Bool("release-to-dated") {
-		eachFile(files, release.ToDated)
-	}
-
-	if c.Bool("release-to-candidates-dir") {
-		eachFile(files, release.ToCandidates)
-	}
-
-	if c.Bool("release-to-mobile-candidates-dir") {
-		eachFile(files, release.ToMobileCandidates)
-	}
-
-	if c.Bool("releaset-to-tinderbox-builds") {
-		eachFile(files, release.ToTinderboxBuilds)
-	}
-
-	if c.Bool("release-to-dated-tinderbox-builds") {
-		eachFile(files, release.ToDatedTinderboxBuilds)
-	}
-
-	if c.Bool("release-to-try-builds") {
-		eachFile(files, release.ToTryBuilds)
-	}
 }
