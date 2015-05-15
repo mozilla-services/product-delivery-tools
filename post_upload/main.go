@@ -86,7 +86,7 @@ func doMain(c *cli.Context) {
 		errs = append(errs, errors.New("you must specify a directory and at least one file"))
 	}
 
-	requireArgs("product", "bucket")
+	requireArgs("product", "bucket-prefix")
 	boolRequireArgs("release-to-latest", "branch")
 	boolRequireArgs("release-to-dated", "branch", "buildid", "nightly-dir")
 	boolRequireArgs("release-to-candidates-dir", "version", "build_number")
