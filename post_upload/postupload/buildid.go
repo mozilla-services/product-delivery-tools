@@ -16,24 +16,35 @@ type BuildID struct {
 //
 // id must be at least 14 characters long
 func NewBuildID(id string) (*BuildID, error) {
+	buildID := new(BuildID)
+	err := buildID.Set(id)
+	return buildID, err
+}
+
+// Set sets a *BuildID from a string
+func (b *BuildID) Set(id string) error {
 	if len(id) < 14 {
-		return nil, errors.New("id must be at least 14 characters")
+		return errors.New("id must be at least 14 characters")
 	}
 
 	l, err := time.LoadLocation("America/Los_Angeles")
 	if err != nil {
-		return nil, fmt.Errorf("NewBuildID/LoadLocation: %s", err)
+		return fmt.Errorf("NewBuildID/LoadLocation: %s", err)
 	}
 
 	t, err := time.ParseInLocation("20060102150405", id, l)
 	if err != nil {
-		return nil, fmt.Errorf("NewBuildID/Parse: %s", err)
+		return fmt.Errorf("NewBuildID/Parse: %s", err)
 	}
 
-	return &BuildID{
-		id:   id,
-		time: t,
-	}, nil
+	b.id = id
+	b.time = t
+	return nil
+}
+
+// String returns a BuildID as a string
+func (b *BuildID) String() string {
+	return b.id
 }
 
 // Year returns BuildID's year

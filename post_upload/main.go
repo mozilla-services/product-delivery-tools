@@ -24,22 +24,13 @@ func main() {
 	app.Action = doMain
 	app.Flags = Flags
 
-	app.Run(os.Args)
+	app.RunAndExitOnError()
 }
 
-func contextToOptions(c *cli.Context, r *postupload.Release) error {
+func contextToOptions(c *cli.Context, r *postupload.Release) {
 	r.Branch = c.String("branch")
 	r.BuildDir = c.String("builddir")
-
-	if c.String("buildid") == "" {
-		r.BuildID = nil
-	} else {
-		buildID, err := postupload.NewBuildID(c.String("buildid"))
-		if err != nil {
-			return fmt.Errorf("error in BuildID, %s", err)
-		}
-		r.BuildID = buildID
-	}
+	r.BuildID = c.Generic("buildid").(*postupload.BuildID)
 	r.BuildNumber = c.String("build-number")
 	r.NightlyDir = c.String("nightly-dir")
 	r.Revision = c.String("revision")
@@ -49,8 +40,6 @@ func contextToOptions(c *cli.Context, r *postupload.Release) error {
 	r.TinderboxBuildsDir = c.String("tinderbox-builds-dir")
 	r.Version = c.String("version")
 	r.Who = c.String("who")
-
-	return nil
 }
 
 func eachFile(files []string, f func(string) ([]string, error)) {
@@ -112,10 +101,7 @@ func doMain(c *cli.Context) {
 		os.Exit(1)
 	}
 
-	err := contextToOptions(c, release)
-	if err != nil {
-		log.Fatal("Error parsing options:", err)
-	}
+	contextToOptions(c, release)
 
 	bucketPrefix := c.String("bucket-prefix")
 	for _, f := range files {
