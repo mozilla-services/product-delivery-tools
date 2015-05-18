@@ -1,6 +1,9 @@
 package main
 
-import "github.com/codegangsta/cli"
+import (
+	"github.com/codegangsta/cli"
+	"github.com/mozilla-services/product-delivery-tools/post_upload/postupload"
+)
 
 // Flags for post_upload
 var Flags = []cli.Flag{
@@ -14,7 +17,7 @@ var Flags = []cli.Flag{
 		Name: "nightly-dir", Value: "nightly",
 		Usage: "Set the base directory for nightlies (ie $product/$nightly_dir/}, and the parent directory for release candidates (default 'nightly'}."},
 	cli.StringFlag{Name: "branch, b", Usage: "Set branch name to build paths properly."},
-	cli.StringFlag{Name: "buildid, i", Usage: "Set buildid to build paths properly."},
+	cli.GenericFlag{Name: "buildid, i", Value: new(postupload.BuildID), Usage: "Set buildid to build paths properly."},
 	cli.StringFlag{Name: "build-number, n", Usage: "Set buildid to build paths properly."},
 	cli.StringFlag{Name: "revision, r"},
 	cli.StringFlag{Name: "who, w"},
