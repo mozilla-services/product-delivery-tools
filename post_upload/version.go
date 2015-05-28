@@ -1,4 +1,4 @@
 package main
 
 // Version for post_upload
-const Version = "1.0.0"
+const Version = "1.0.1"

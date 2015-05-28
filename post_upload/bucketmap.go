@@ -3,15 +3,15 @@ package main
 import "strings"
 
 var pathPrefixesToBucket = [][]string{
-	[]string{"firefox/try-builds/", "delivery-firefox-try"},
-	[]string{"firefox/", "delivery-firefox"},
-	[]string{"mobile/try-builds/", "delivery-firefox-android-try"},
-	[]string{"mobile/", "delivery-firefox-android"},
-	[]string{"opus/", "delivery-opus"},
-	[]string{"thunderbird/try-builds/", "delivery-thunderbird-try"},
-	[]string{"thunderbird/", "delivery-thunderbird"},
-	[]string{"xulrunner/try-builds/", "delivery-xulrunner-try"},
-	[]string{"xulrunner/", "delivery-xulrunner"},
+	[]string{"firefox/try-builds/", "firefox-try"},
+	[]string{"firefox/", "firefox"},
+	[]string{"mobile/try-builds/", "firefox-android-try"},
+	[]string{"mobile/", "firefox-android"},
+	[]string{"opus/", "opus"},
+	[]string{"thunderbird/try-builds/", "thunderbird-try"},
+	[]string{"thunderbird/", "thunderbird"},
+	[]string{"xulrunner/try-builds/", "xulrunner-try"},
+	[]string{"xulrunner/", "xulrunner"},
 }
 
 func destToBucket(dest string) string {
