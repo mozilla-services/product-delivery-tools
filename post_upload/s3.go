@@ -10,6 +10,7 @@ import (
 
 var awsConfig = &aws.Config{
 	MaxRetries: 5,
+	Region:     "us-east-1",
 }
 
 func s3CopyFile(src, bucket, key string) error {
