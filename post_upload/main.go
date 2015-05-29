@@ -14,7 +14,7 @@ func main() {
 	app.Name = "post_upload"
 	app.HideVersion = true
 	app.Version = Version
-	app.Usage = ""
+	app.Usage = "post_upload [options] <directory> <file> [file]..."
 	app.Authors = []cli.Author{
 		cli.Author{
 			Name:  "Jeremy Orem",

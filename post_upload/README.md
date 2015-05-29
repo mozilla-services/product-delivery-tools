@@ -3,10 +3,10 @@ Copies a list of files to their S3 release locations.
 
 ```
 NAME:
-   post_upload - 
+   post_upload - post_upload [options] <directory> <file> [file]...
 
 USAGE:
-   post_upload [global options] command [command options] [arguments...]
+   post_upload [options] <directory> <file> [file]...
 
 VERSION:
    1.0.0
