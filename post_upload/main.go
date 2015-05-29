@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/codegangsta/cli"
+	"github.com/mozilla-services/product-delivery-tools"
 	"github.com/mozilla-services/product-delivery-tools/post_upload/postupload"
 )
 
@@ -13,7 +14,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "post_upload"
 	app.HideVersion = true
-	app.Version = Version
+	app.Version = deliverytools.Version
 	app.Usage = "post_upload [options] <directory> <file> [file]..."
 	app.Authors = []cli.Author{
 		cli.Author{
