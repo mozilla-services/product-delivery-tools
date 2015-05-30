@@ -6,15 +6,11 @@ import (
 
 	"github.com/awslabs/aws-sdk-go/aws"
 	"github.com/awslabs/aws-sdk-go/service/s3"
+	"github.com/mozilla-services/product-delivery-tools"
 )
 
 func s3Service() *s3.S3 {
-	return s3.New(awsConfig)
-}
-
-var awsConfig = &aws.Config{
-	MaxRetries: 5,
-	Region:     "us-east-1",
+	return s3.New(deliverytools.AWSConfig)
 }
 
 var s3FileCache = map[string]string{}
@@ -41,13 +37,12 @@ func s3PutFile(src, bucket, key string) error {
 	}
 	defer file.Close()
 
-	s3Service := s3.New(awsConfig)
 	putObjectInput := &s3.PutObjectInput{
 		Body:   file,
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
 	}
-	_, err = s3Service.PutObject(putObjectInput)
+	_, err = s3Service().PutObject(putObjectInput)
 	if err != nil {
 		return fmt.Errorf("putting %s to %s/%s err: %s", src, bucket, key, err)
 	}
