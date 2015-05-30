@@ -1,38 +1,45 @@
 package bucketlister
 
-import (
-	"html/template"
+import "html/template"
 
-	"github.com/awslabs/aws-sdk-go/service/s3"
-)
+type listFileInfo struct {
+	Key          string
+	LastModified string
+	Size         string
+}
 
 type listTemplateInput struct {
-	Prefixes []*s3.CommonPrefix
-	Objects  []*s3.Object
+	Path        string
+	Directories []string
+	Files       []listFileInfo
 }
 
 var listTemplate = template.Must(template.New("List").Parse(`<!DOCTYPE html>
 <html>
 	<head>
 		<meta charset="UTF-8">
-		<title>Directory Listing</title>
+		<title>Directory Listing: /{{.Path}}</title>
 	</head>
 	<body>
+		<h1>Index of /{{.Path}}</h1>
 		<table>
 			<tr>
+				<th>Type</th>
 				<th>Name</th>
 				<th>Size</th>
 				<th>Last Modified</th>
 			</tr>
-			{{range .Prefixes}}
+			{{range .Directories}}
 			<tr>
-				<td><a href="/{{.Prefix}}">/{{.Prefix}}</a></td>
+				<td>Dir</th>
+				<td><a href="/{{.}}">/{{.}}</a></td>
 				<td></td>
 				<td></td>
 			</tr>
 			{{end}}
-			{{range .Objects}}
+			{{range .Files}}
 			<tr>
+				<td>File</th>
 				<td><a href="/{{.Key}}">/{{.Key}}</a></td>
 				<td>{{.Size}}</td>
 				<td>{{.LastModified}}</td>

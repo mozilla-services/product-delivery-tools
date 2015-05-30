@@ -1,6 +1,7 @@
 package bucketlister
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"path"
@@ -69,8 +70,34 @@ func (b *BucketLister) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	tmplParams := &listTemplateInput{
+		Path:        prefix,
+		Directories: []string{},
+		Files:       []listFileInfo{},
+	}
+
+	for _, p := range prefixes {
+		tmplParams.Directories = append(tmplParams.Directories, *p.Prefix)
+	}
+
+	for _, o := range objects {
+		size := *o.Size
+		sizeStr := ""
+		if size < 1024 {
+			sizeStr = fmt.Sprintf("%d B", size)
+		} else {
+			sizeStr = fmt.Sprintf("%d KB", size/1024)
+		}
+
+		tmplParams.Files = append(tmplParams.Files, listFileInfo{
+			Key:          *o.Key,
+			LastModified: (*o.LastModified).Format("02-Jan-2006 15:04"),
+			Size:         sizeStr,
+		})
+	}
+
 	w.Header().Set("Content-Type", "text/html")
-	err := listTemplate.Execute(w, &listTemplateInput{prefixes, objects})
+	err := listTemplate.Execute(w, tmplParams)
 	if err != nil {
 		log.Printf("Error executing template err: %s", err)
 	}
