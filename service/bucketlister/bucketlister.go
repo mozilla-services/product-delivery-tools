@@ -1,7 +1,6 @@
 package bucketlister
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"path"
@@ -71,15 +70,8 @@ func (b *BucketLister) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte("Prefixes<br>"))
-	for _, p := range prefixes {
-		w.Write([]byte(fmt.Sprintf("<a href=\"/%s\">/%s</a>", *p.Prefix, *p.Prefix)))
-		w.Write([]byte("<br>"))
-	}
-
-	w.Write([]byte("Objects<br>"))
-	for _, p := range objects {
-		w.Write([]byte(*p.Key))
-		w.Write([]byte("<br>"))
+	err := listTemplate.Execute(w, &listTemplateInput{prefixes, objects})
+	if err != nil {
+		log.Printf("Error executing template err: %s", err)
 	}
 }
