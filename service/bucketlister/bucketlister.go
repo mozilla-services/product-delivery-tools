@@ -33,11 +33,25 @@ func New(bucket, prefix string, awsConfig *aws.Config) *BucketLister {
 	}
 }
 
+func (b *BucketLister) Empty() (bool, error) {
+	listParams := &s3.ListObjectsInput{
+		Bucket:  aws.String(b.Bucket),
+		MaxKeys: aws.Long(1),
+	}
+
+	s3Service := s3.New(b.AWSConfig)
+	res, err := s3Service.ListObjects(listParams)
+	if err != nil {
+		return true, fmt.Errorf("listing %s err: %s", b.Bucket, err)
+	}
+
+	return len(res.Contents) <= 0, nil
+}
+
 // ServeHTTP implements http.Handler
 func (b *BucketLister) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	reqPath := strings.Trim(strings.TrimPrefix(req.URL.Path, "/"+b.mountedAt), "/")
 	prefix := path.Join(b.prefix, reqPath) + "/"
-	s3Service := s3.New(b.AWSConfig)
 
 	prefixes := []*s3.CommonPrefix{}
 	objects := []*s3.Object{}
@@ -48,6 +62,7 @@ func (b *BucketLister) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		Prefix:    aws.String(prefix),
 	}
 
+	s3Service := s3.New(b.AWSConfig)
 	for {
 		res, err := s3Service.ListObjects(listParams)
 		if err != nil {

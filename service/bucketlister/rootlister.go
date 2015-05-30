@@ -26,8 +26,15 @@ func (r *RootLister) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		Directories: []string{},
 	}
 	for _, lister := range r.listers {
+		if empty, err := lister.Empty(); empty {
+			if err != nil {
+				log.Printf("Error checking empty: %s", err)
+			}
+			continue
+		}
 		tmplParams.Directories = append(tmplParams.Directories, lister.mountedAt)
 	}
+
 	w.Header().Set("Content-Type", "text/html")
 	err := listTemplate.Execute(w, tmplParams)
 	if err != nil {
