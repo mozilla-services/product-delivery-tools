@@ -28,11 +28,16 @@ func main() {
 }
 
 func doMain(c *cli.Context) {
+	rootLister := &bucketlister.RootLister{}
 	lister := func(suffix, prefix string) http.Handler {
-		return bucketlister.New(
+		bl := bucketlister.New(
 			c.String("bucket-prefix")+"-"+suffix, prefix, deliverytools.AWSConfig)
+
+		rootLister.AddBucketLister(bl)
+		return bl
 	}
 
+	http.Handle("/", rootLister)
 	http.Handle("/firefox/", lister("firefox", "/firefox/"))
 
 	err := http.ListenAndServe(c.String("addr"), nil)
