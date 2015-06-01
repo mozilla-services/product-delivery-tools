@@ -33,6 +33,7 @@ func New(bucket, prefix string, awsConfig *aws.Config) *BucketLister {
 	}
 }
 
+// Empty returns true if the bucket contains zero keys
 func (b *BucketLister) Empty() (bool, error) {
 	listParams := &s3.ListObjectsInput{
 		Bucket:  aws.String(b.Bucket),
@@ -48,6 +49,22 @@ func (b *BucketLister) Empty() (bool, error) {
 	return len(res.Contents) <= 0, nil
 }
 
+func objectToListFileInfo(obj *s3.Object) *listFileInfo {
+	size := *obj.Size
+	sizeStr := ""
+	if size < 1024 {
+		sizeStr = fmt.Sprintf("%d B", size)
+	} else {
+		sizeStr = fmt.Sprintf("%d KB", size/1024)
+	}
+
+	return &listFileInfo{
+		Key:          *obj.Key,
+		LastModified: (*obj.LastModified).Format("02-Jan-2006 15:04"),
+		Size:         sizeStr,
+	}
+}
+
 // ServeHTTP implements http.Handler
 func (b *BucketLister) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	reqPath := strings.Trim(strings.TrimPrefix(req.URL.Path, "/"+b.mountedAt), "/")
@@ -56,27 +73,14 @@ func (b *BucketLister) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	prefixes := []*s3.CommonPrefix{}
 	objects := []*s3.Object{}
 
-	listParams := &s3.ListObjectsInput{
-		Bucket:    aws.String(b.Bucket),
-		Delimiter: aws.String("/"),
-		Prefix:    aws.String(prefix),
-	}
-
 	s3Service := s3.New(b.AWSConfig)
-	for {
-		res, err := s3Service.ListObjects(listParams)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Internal Server Error."))
-			log.Printf("Error listing %s/%s err: %s", b.Bucket, prefix, err)
-			return
-		}
-		prefixes = append(prefixes, res.CommonPrefixes...)
-		objects = append(objects, res.Contents...)
-		if res.NextMarker != nil {
-			continue
-		}
-		break
+
+	objects, prefixes, err := listObjects(s3Service, b.Bucket, prefix)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Internal Server Error."))
+		log.Printf("Error %s", err)
+		return
 	}
 
 	if len(objects) == 0 && len(prefixes) == 0 {
@@ -87,32 +91,20 @@ func (b *BucketLister) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	tmplParams := &listTemplateInput{
 		Path:        prefix,
-		Directories: []string{},
-		Files:       []listFileInfo{},
+		Directories: make([]string, len(prefixes)),
+		Files:       make([]*listFileInfo, len(objects)),
 	}
 
-	for _, p := range prefixes {
-		tmplParams.Directories = append(tmplParams.Directories, *p.Prefix)
+	for i, p := range prefixes {
+		tmplParams.Directories[i] = *p.Prefix
 	}
 
-	for _, o := range objects {
-		size := *o.Size
-		sizeStr := ""
-		if size < 1024 {
-			sizeStr = fmt.Sprintf("%d B", size)
-		} else {
-			sizeStr = fmt.Sprintf("%d KB", size/1024)
-		}
-
-		tmplParams.Files = append(tmplParams.Files, listFileInfo{
-			Key:          *o.Key,
-			LastModified: (*o.LastModified).Format("02-Jan-2006 15:04"),
-			Size:         sizeStr,
-		})
+	for i, o := range objects {
+		tmplParams.Files[i] = objectToListFileInfo(o)
 	}
 
 	w.Header().Set("Content-Type", "text/html")
-	err := listTemplate.Execute(w, tmplParams)
+	err = listTemplate.Execute(w, tmplParams)
 	if err != nil {
 		log.Printf("Error executing template err: %s", err)
 	}

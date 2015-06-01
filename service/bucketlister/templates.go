@@ -11,7 +11,7 @@ type listFileInfo struct {
 type listTemplateInput struct {
 	Path        string
 	Directories []string
-	Files       []listFileInfo
+	Files       []*listFileInfo
 }
 
 var listTemplate = template.Must(template.New("List").Parse(`<!DOCTYPE html>
