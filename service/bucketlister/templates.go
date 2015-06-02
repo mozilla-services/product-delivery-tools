@@ -31,7 +31,7 @@ var listTemplate = template.Must(template.New("List").Parse(`<!DOCTYPE html>
 			</tr>
 			{{range .Directories}}
 			<tr>
-				<td>Dir</th>
+				<td>Dir</td>
 				<td><a href="/{{.}}">/{{.}}</a></td>
 				<td></td>
 				<td></td>
