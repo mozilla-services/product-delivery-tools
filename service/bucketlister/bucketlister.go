@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"path"
+	"sort"
 	"strings"
 
 	"github.com/awslabs/aws-sdk-go/aws"
@@ -13,9 +14,11 @@ import (
 
 // BucketLister is a directory listing service for S3
 type BucketLister struct {
-	Bucket    string
-	mountedAt string
-	prefix    string
+	Bucket     string
+	mountedAt  string
+	basePrefix string
+
+	listers map[string][]*BucketLister
 
 	AWSConfig *aws.Config
 }
@@ -24,13 +27,28 @@ type BucketLister struct {
 //
 // prefix is the starting point for this lister
 func New(bucket, prefix string, awsConfig *aws.Config) *BucketLister {
-	trimmedPrefix := strings.Trim(prefix, "/") + "/"
-	return &BucketLister{
-		AWSConfig: awsConfig,
-		Bucket:    bucket,
-		mountedAt: trimmedPrefix,
-		prefix:    trimmedPrefix,
+	trimmedPrefix := strings.Trim(prefix, "/")
+	if trimmedPrefix != "" {
+		trimmedPrefix += "/"
 	}
+	return &BucketLister{
+		AWSConfig:  awsConfig,
+		Bucket:     bucket,
+		mountedAt:  "/" + trimmedPrefix,
+		basePrefix: trimmedPrefix,
+		listers:    make(map[string][]*BucketLister),
+	}
+}
+
+// AddBucketLister adds a lister to the root lister
+//
+// If a lister is attached, it will show up as a directory link
+func (b *BucketLister) AddBucketLister(mount string, child *BucketLister) {
+	if b.listers[mount] == nil {
+		b.listers[mount] = []*BucketLister{child}
+		return
+	}
+	b.listers[mount] = append(b.listers[mount], child)
 }
 
 // Empty returns true if the bucket contains zero keys
@@ -65,10 +83,32 @@ func objectToListFileInfo(obj *s3.Object) *listFileInfo {
 	}
 }
 
+func (b *BucketLister) listerDirs(reqPath string) []string {
+	dirs := []string{}
+	for _, lister := range b.listers[reqPath] {
+		if empty, err := lister.Empty(); empty {
+			if err != nil {
+				log.Println("Error checking empty: %s", err)
+			}
+			continue
+		}
+		dirs = append(dirs, path.Base(lister.mountedAt)+"/")
+	}
+
+	return dirs
+}
+
 // ServeHTTP implements http.Handler
 func (b *BucketLister) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	reqPath := strings.Trim(strings.TrimPrefix(req.URL.Path, "/"+b.mountedAt), "/")
-	prefix := path.Join(b.prefix, reqPath) + "/"
+	reqPath := req.URL.Path
+	if !strings.HasSuffix(reqPath, "/") {
+		reqPath += "/"
+	}
+	relPath := strings.TrimPrefix(reqPath, b.mountedAt)
+	prefix := path.Join(b.basePrefix, relPath)
+	if prefix != "" {
+		prefix += "/"
+	}
 
 	prefixes := []*s3.CommonPrefix{}
 	objects := []*s3.Object{}
@@ -83,24 +123,35 @@ func (b *BucketLister) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if len(objects) == 0 && len(prefixes) == 0 {
+	if len(b.listers[reqPath]) == 0 && len(objects) == 0 && len(prefixes) == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("Not Found"))
 		return
 	}
 
 	tmplParams := &listTemplateInput{
-		Path:        prefix,
+		Path:        reqPath,
 		Directories: make([]string, len(prefixes)),
-		Files:       make([]*listFileInfo, len(objects)),
+		Files:       make([]*listFileInfo, 0, len(objects)),
 	}
 
 	for i, p := range prefixes {
-		tmplParams.Directories[i] = *p.Prefix
+		tmplParams.Directories[i] = path.Base(*p.Prefix) + "/"
 	}
 
-	for i, o := range objects {
-		tmplParams.Files[i] = objectToListFileInfo(o)
+	extraDirs := b.listerDirs(reqPath)
+	if len(extraDirs) > 0 {
+		tmplParams.Directories = append(tmplParams.Directories, extraDirs...)
+		sort.Strings(tmplParams.Directories)
+	}
+
+	for _, o := range objects {
+		if *o.Key == prefix {
+			continue
+		}
+		o := objectToListFileInfo(o)
+		o.Key = strings.TrimPrefix(o.Key, prefix)
+		tmplParams.Files = append(tmplParams.Files, o)
 	}
 
 	w.Header().Set("Content-Type", "text/html")

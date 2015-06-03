@@ -28,12 +28,17 @@ func main() {
 }
 
 func doMain(c *cli.Context) {
-	rootLister := &bucketlister.RootLister{}
+	rootLister := bucketlister.New(
+		c.String("bucket-prefix")+"-"+deliverytools.ProdBucketMap.Default,
+		"",
+		deliverytools.AWSConfig,
+	)
+
 	lister := func(suffix, prefix string) http.Handler {
 		bl := bucketlister.New(
 			c.String("bucket-prefix")+"-"+suffix, prefix, deliverytools.AWSConfig)
 
-		rootLister.AddBucketLister(bl)
+		rootLister.AddBucketLister("/", bl)
 		return bl
 	}
 

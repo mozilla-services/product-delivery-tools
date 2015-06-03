@@ -36,7 +36,7 @@ func TestBucketPrefix(t *testing.T) {
 	)
 	bl := New("bucket", "/prefix/", nil)
 
-	assert.Equal(t, bl.prefix, "prefix/")
+	assert.Equal(t, bl.basePrefix, "prefix/")
 
 	recorder := httptest.NewRecorder()
 	req, err := http.NewRequest("GET", "/", nil)
