@@ -1,12 +1,9 @@
-# Delivery Directory Lister
+# Delivery Bucket Lister
 Returns directory listings for S3 buckets.
 
 ```
-NAME:
-   delivery_dir_ls - delivery_dir_ls [options]
-
 USAGE:
-   delivery_dir_ls [global options] command [command options] [arguments...]
+   bucketlister [options]
 
 VERSION:
    1.1.0

@@ -11,10 +11,10 @@ import (
 
 func main() {
 	app := cli.NewApp()
-	app.Name = "delivery_dir_ls"
+	app.Name = "bucketlister"
 	app.HideVersion = true
 	app.Version = deliverytools.Version
-	app.Usage = "delivery_dir_ls [options]"
+	app.Usage = "bucketlister [options]"
 	app.Authors = []cli.Author{
 		cli.Author{
 			Name:  "Jeremy Orem",
