@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/codegangsta/cli"
 	"github.com/mozilla-services/product-delivery-tools"
@@ -133,5 +134,14 @@ func doMain(c *cli.Context) {
 			}
 		}
 	}
+}
 
+func destToBucket(dest string) string {
+	for _, pathMount := range deliverytools.ProdBucketMap.Mounts {
+		if strings.HasPrefix(dest, pathMount.Prefix) {
+			return pathMount.Bucket
+		}
+	}
+
+	return deliverytools.ProdBucketMap.Default
 }
