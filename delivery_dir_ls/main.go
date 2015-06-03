@@ -38,15 +38,9 @@ func doMain(c *cli.Context) {
 	}
 
 	http.Handle("/", rootLister)
-	http.Handle("/firefox/", lister("firefox", "/firefox/"))
-	http.Handle("/firefox/try-builds/", lister("firefox-try", "/firefox/try-builds/"))
-	http.Handle("/mobile/", lister("firefox-android", "/mobile/"))
-	http.Handle("/mobile/try-builds/", lister("firefox-android-try", "/mobile/try-builds/"))
-	http.Handle("/opus/", lister("opus", "/opus/"))
-	http.Handle("/thunderbird/", lister("thunderbird", "/thunderbird/"))
-	http.Handle("/thunderbird/try-builds/", lister("thunderbird-try", "/thunderbird/try-builds/"))
-	http.Handle("/xulrunner/", lister("xulrunner", "/xulrunner/"))
-	http.Handle("/xulrunner/try-builds/", lister("xulrunner-try", "/xulrunner/try-builds/"))
+	for _, mount := range deliverytools.ProdBucketMap.Mounts {
+		http.Handle("/"+mount.Prefix, lister(mount.Bucket, "/"+mount.Prefix))
+	}
 
 	err := http.ListenAndServe(c.String("addr"), nil)
 	if err != nil {
