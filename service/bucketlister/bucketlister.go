@@ -7,6 +7,7 @@ import (
 	"path"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -154,6 +155,7 @@ func (b *BucketLister) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		tmplParams.Files = append(tmplParams.Files, o)
 	}
 
+	setExpiresIn(15*time.Minute, w)
 	w.Header().Set("Content-Type", "text/html")
 	err = listTemplate.Execute(w, tmplParams)
 	if err != nil {
