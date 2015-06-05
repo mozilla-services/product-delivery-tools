@@ -1,6 +1,7 @@
 package mozlog
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -31,7 +32,7 @@ type MozLogger struct {
 func (m *MozLogger) Write(l []byte) (int, error) {
 
 	log := New(m.Logger)
-	log.Fields["msg"] = string(l)
+	log.Fields["msg"] = string(bytes.TrimSpace(l))
 
 	out, err := log.ToJSON()
 	if err != nil {
@@ -40,7 +41,7 @@ func (m *MozLogger) Write(l []byte) (int, error) {
 		return 0, err
 	}
 
-	_, err = m.Output.Write(out)
+	_, err = m.Output.Write(append(out, '\n'))
 	return len(l), err
 }
 
