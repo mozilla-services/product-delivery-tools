@@ -9,4 +9,5 @@ var Flags = []cli.Flag{
 		Name:  "bucket-prefix",
 		Value: "net-mozaws-prod-delivery",
 		Usage: "Sets S3 bucket prefix"},
+	cli.StringFlag{Name: "logger", Usage: "Sets the logger name", Value: "BucketLister"},
 }

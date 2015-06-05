@@ -6,6 +6,7 @@ import (
 
 	"github.com/codegangsta/cli"
 	"github.com/mozilla-services/product-delivery-tools"
+	"github.com/mozilla-services/product-delivery-tools/mozlog"
 	"github.com/mozilla-services/product-delivery-tools/service/bucketlister"
 )
 
@@ -28,6 +29,7 @@ func main() {
 }
 
 func doMain(c *cli.Context) {
+	mozlog.UseMozLogger(c.String("logger"))
 	rootLister := bucketlister.New(
 		c.String("bucket-prefix")+"-"+deliverytools.ProdBucketMap.Default,
 		"",
