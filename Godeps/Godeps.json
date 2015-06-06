@@ -6,6 +6,10 @@
 	],
 	"Deps": [
 		{
+			"ImportPath": "github.com/PagerDuty/godspeed",
+			"Rev": "079d1fb267ad66b7a3bd42c24013cbeb29698c3d"
+		},
+		{
 			"ImportPath": "github.com/aws/aws-sdk-go/aws",
 			"Comment": "v0.6.0-1-g5fa0a7e",
 			"Rev": "5fa0a7e63b3d9f094d7e8549ce483a190587398f"
