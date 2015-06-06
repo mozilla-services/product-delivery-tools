@@ -57,7 +57,7 @@ func doMain(c *cli.Context) {
 		startTime := time.Now()
 		rootLister.ServeHTTP(w, r)
 		duration := time.Now().Sub(startTime)
-		go metrics.Metric.Set("pageload", float64(duration/time.Millisecond), []string{})
+		go metrics.Metric.Set("pageload", float64(duration/time.Nanosecond), []string{})
 	}))
 
 	for _, mount := range deliverytools.ProdBucketMap.Mounts {
