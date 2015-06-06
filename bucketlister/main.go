@@ -3,9 +3,11 @@ package main
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/codegangsta/cli"
 	"github.com/mozilla-services/product-delivery-tools"
+	"github.com/mozilla-services/product-delivery-tools/metrics"
 	"github.com/mozilla-services/product-delivery-tools/mozlog"
 	"github.com/mozilla-services/product-delivery-tools/service/bucketlister"
 )
@@ -30,6 +32,13 @@ func main() {
 
 func doMain(c *cli.Context) {
 	mozlog.UseMozLogger(c.String("logger"))
+	if c.String("dogstatsd-ip") != "" {
+		metrics.Metric = &metrics.GodSpeed{
+			NameSpace: c.String("dogstatsd-namespace"),
+			IP:        c.String("dogstatsd-ip"),
+			Port:      c.Int("dogstatsd-port"),
+		}
+	}
 	rootLister := bucketlister.New(
 		c.String("bucket-prefix")+"-"+deliverytools.ProdBucketMap.Default,
 		"",
@@ -44,7 +53,13 @@ func doMain(c *cli.Context) {
 		return bl
 	}
 
-	http.Handle("/", rootLister)
+	http.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		startTime := time.Now()
+		rootLister.ServeHTTP(w, r)
+		duration := time.Now().Sub(startTime)
+		go metrics.Metric.Set("pageload", float64(duration/time.Millisecond), []string{})
+	}))
+
 	for _, mount := range deliverytools.ProdBucketMap.Mounts {
 		http.Handle("/"+mount.Prefix, lister(mount.Bucket, "/"+mount.Prefix))
 	}
