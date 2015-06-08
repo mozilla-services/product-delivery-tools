@@ -7,9 +7,9 @@ import (
 
 	"github.com/codegangsta/cli"
 	"github.com/mozilla-services/product-delivery-tools"
+	"github.com/mozilla-services/product-delivery-tools/bucketlister/services/bucketlister"
 	"github.com/mozilla-services/product-delivery-tools/metrics"
 	"github.com/mozilla-services/product-delivery-tools/mozlog"
-	"github.com/mozilla-services/product-delivery-tools/service/bucketlister"
 )
 
 func main() {
