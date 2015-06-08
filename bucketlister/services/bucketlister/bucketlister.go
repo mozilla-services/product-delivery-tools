@@ -68,19 +68,11 @@ func (b *BucketLister) Empty() (bool, error) {
 	return len(res.Contents) <= 0, nil
 }
 
-func objectToListFileInfo(obj *s3.Object) *listFileInfo {
-	size := *obj.Size
-	sizeStr := ""
-	if size < 1024 {
-		sizeStr = fmt.Sprintf("%d B", size)
-	} else {
-		sizeStr = fmt.Sprintf("%d KB", size/1024)
-	}
-
-	return &listFileInfo{
-		Key:          *obj.Key,
-		LastModified: (*obj.LastModified).Format("02-Jan-2006 15:04"),
-		Size:         sizeStr,
+func objectToListFileInfo(obj *s3.Object) *File {
+	return &File{
+		Name:         *obj.Key,
+		LastModified: *obj.LastModified,
+		Size:         *obj.Size,
 	}
 }
 
@@ -99,6 +91,42 @@ func (b *BucketLister) listerDirs(reqPath string) []string {
 	return dirs
 }
 
+func (b *BucketLister) listPrefix(reqPath, prefix string) (*PrefixListing, error) {
+	s3Service := s3.New(b.AWSConfig)
+	objects, prefixes, err := listObjects(s3Service, b.Bucket, prefix)
+	if err != nil {
+		return nil, err
+	}
+
+	extraDirs := b.listerDirs(reqPath)
+
+	listing := &PrefixListing{
+		Prefixes: make([]string, len(prefixes), len(prefixes)+len(extraDirs)),
+		Files:    make([]*File, 0, len(objects)),
+	}
+
+	for i, p := range prefixes {
+		listing.Prefixes[i] = path.Base(*p.Prefix) + "/"
+	}
+
+	if len(extraDirs) > 0 {
+		listing.Prefixes = append(listing.Prefixes, extraDirs...)
+	}
+
+	sort.Strings(listing.Prefixes)
+
+	for _, o := range objects {
+		if *o.Key == prefix {
+			continue
+		}
+		o := objectToListFileInfo(o)
+		o.Name = strings.TrimPrefix(o.Name, prefix)
+		listing.Files = append(listing.Files, o)
+	}
+
+	return listing, nil
+}
+
 // ServeHTTP implements http.Handler
 func (b *BucketLister) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	reqPath := req.URL.Path
@@ -111,12 +139,7 @@ func (b *BucketLister) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		prefix += "/"
 	}
 
-	prefixes := []*s3.CommonPrefix{}
-	objects := []*s3.Object{}
-
-	s3Service := s3.New(b.AWSConfig)
-
-	objects, prefixes, err := listObjects(s3Service, b.Bucket, prefix)
+	listing, err := b.listPrefix(reqPath, prefix)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Internal Server Error."))
@@ -124,35 +147,15 @@ func (b *BucketLister) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if len(b.listers[reqPath]) == 0 && len(objects) == 0 && len(prefixes) == 0 {
+	if len(listing.Files) == 0 && len(listing.Prefixes) == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("Not Found"))
 		return
 	}
 
 	tmplParams := &listTemplateInput{
-		Path:        reqPath,
-		Directories: make([]string, len(prefixes)),
-		Files:       make([]*listFileInfo, 0, len(objects)),
-	}
-
-	for i, p := range prefixes {
-		tmplParams.Directories[i] = path.Base(*p.Prefix) + "/"
-	}
-
-	extraDirs := b.listerDirs(reqPath)
-	if len(extraDirs) > 0 {
-		tmplParams.Directories = append(tmplParams.Directories, extraDirs...)
-		sort.Strings(tmplParams.Directories)
-	}
-
-	for _, o := range objects {
-		if *o.Key == prefix {
-			continue
-		}
-		o := objectToListFileInfo(o)
-		o.Key = strings.TrimPrefix(o.Key, prefix)
-		tmplParams.Files = append(tmplParams.Files, o)
+		Path:          reqPath,
+		PrefixListing: listing,
 	}
 
 	setExpiresIn(15*time.Minute, w)
