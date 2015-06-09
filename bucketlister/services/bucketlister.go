@@ -109,9 +109,7 @@ func (b *BucketLister) listPrefix(reqPath, prefix string) (*PrefixListing, error
 		listing.Prefixes[i] = path.Base(*p.Prefix) + "/"
 	}
 
-	if len(extraDirs) > 0 {
-		listing.Prefixes = append(listing.Prefixes, extraDirs...)
-	}
+	listing.Prefixes = append(listing.Prefixes, extraDirs...)
 
 	sort.Strings(listing.Prefixes)
 

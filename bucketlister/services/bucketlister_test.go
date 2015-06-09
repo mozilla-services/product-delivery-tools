@@ -24,7 +24,7 @@ func TestBucketPrefix(t *testing.T) {
 			&s3.Object{
 				Key:          aws.String("key1"),
 				LastModified: &now,
-				Size:         aws.Long(100),
+				Size:         aws.Long(2048),
 			},
 		},
 		[]*s3.CommonPrefix{
@@ -46,4 +46,5 @@ func TestBucketPrefix(t *testing.T) {
 	assert.Equal(t, 200, recorder.Code)
 	assert.Contains(t, recorder.Body.String(), "/key1")
 	assert.Contains(t, recorder.Body.String(), "/prefix1")
+	assert.Contains(t, recorder.Body.String(), "2K")
 }

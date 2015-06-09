@@ -64,8 +64,8 @@ var listTemplate = template.Must(template.New("List").Parse(`<!DOCTYPE html>
 			<tr>
 				<td>File</th>
 				<td><a href="{{$.Path}}{{$file.Base}}">{{$file.Base}}</a></td>
-				<td>{{$file.Size}}</td>
-				<td>{{$file.LastModified}}</td>
+				<td>{{$file.SizeString}}</td>
+				<td>{{$file.LastModifiedString}}</td>
 			</tr>
 			{{end}}
 		</table>
