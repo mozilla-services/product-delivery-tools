@@ -180,6 +180,7 @@ func (b *BucketLister) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	setExpiresIn(15*time.Minute, w)
+	w.Header().Set("Vary", "Accept")
 	w.Header().Set("Content-Type", contentType)
 	w.Write(body.Bytes())
 }
