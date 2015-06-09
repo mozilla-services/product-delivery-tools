@@ -7,7 +7,7 @@ import (
 
 	"github.com/codegangsta/cli"
 	"github.com/mozilla-services/product-delivery-tools"
-	"github.com/mozilla-services/product-delivery-tools/bucketlister/services/bucketlister"
+	"github.com/mozilla-services/product-delivery-tools/bucketlister/services"
 	"github.com/mozilla-services/product-delivery-tools/metrics"
 	"github.com/mozilla-services/product-delivery-tools/mozlog"
 )
@@ -39,14 +39,14 @@ func doMain(c *cli.Context) {
 			Port:      c.Int("dogstatsd-port"),
 		}
 	}
-	rootLister := bucketlister.New(
+	rootLister := services.NewBucketLister(
 		c.String("bucket-prefix")+"-"+deliverytools.ProdBucketMap.Default,
 		"",
 		deliverytools.AWSConfig,
 	)
 
 	lister := func(suffix, prefix string) http.Handler {
-		bl := bucketlister.New(
+		bl := services.NewBucketLister(
 			c.String("bucket-prefix")+"-"+suffix, prefix, deliverytools.AWSConfig)
 
 		rootLister.AddBucketLister("/", bl)

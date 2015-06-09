@@ -1,4 +1,4 @@
-package bucketlister
+package services
 
 import (
 	"html/template"
@@ -13,9 +13,8 @@ type listFileInfo struct {
 }
 
 type listTemplateInput struct {
-	Path        string
-	Directories []string
-	Files       []*listFileInfo
+	Path          string
+	PrefixListing *PrefixListing
 }
 
 func (l *listTemplateInput) Parent() string {
@@ -53,7 +52,7 @@ var listTemplate = template.Must(template.New("List").Parse(`<!DOCTYPE html>
 				<td></td>
 			</tr>
 			{{end}}
-			{{range $dir := .Directories}}
+			{{range $dir := .PrefixListing.Prefixes}}
 			<tr>
 				<td>Dir</td>
 				<td><a href="{{$.Path}}{{$dir}}">{{.}}</a></td>
@@ -61,12 +60,12 @@ var listTemplate = template.Must(template.New("List").Parse(`<!DOCTYPE html>
 				<td></td>
 			</tr>
 			{{end}}
-			{{range $file := .Files}}
+			{{range $file := .PrefixListing.Files}}
 			<tr>
 				<td>File</th>
-				<td><a href="{{$.Path}}{{$file.Key}}">{{$file.Key}}</a></td>
-				<td>{{$file.Size}}</td>
-				<td>{{$file.LastModified}}</td>
+				<td><a href="{{$.Path}}{{$file.Base}}">{{$file.Base}}</a></td>
+				<td>{{$file.SizeString}}</td>
+				<td>{{$file.LastModifiedString}}</td>
 			</tr>
 			{{end}}
 		</table>

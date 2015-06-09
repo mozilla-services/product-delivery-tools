@@ -1,4 +1,4 @@
-package bucketlister
+package services
 
 import (
 	"fmt"
