@@ -5,6 +5,22 @@ import (
 	"github.com/mozilla-services/product-delivery-tools/post_upload/postupload"
 )
 
+func init() {
+	cli.AppHelpTemplate = `USAGE:
+   {{.Usage}}
+VERSION:
+   {{.Version}}{{if len .Authors}}
+AUTHOR(S):
+   {{range .Authors}}{{ . }}{{end}}{{end}}
+COMMANDS:
+   {{range .Commands}}{{join .Names ", "}}{{ "\t" }}{{.Usage}}
+   {{end}}{{if .Flags}}
+GLOBAL OPTIONS:
+   {{range .Flags}}{{.}}
+   {{end}}{{end}}
+`
+}
+
 // Flags for post_upload
 var Flags = []cli.Flag{
 	cli.StringFlag{Name: "product, p", Usage: "Set product name to build paths properly."},
