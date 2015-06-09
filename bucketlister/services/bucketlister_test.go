@@ -1,6 +1,7 @@
 package services
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -44,7 +45,22 @@ func TestBucketPrefix(t *testing.T) {
 	bl.ServeHTTP(recorder, req)
 
 	assert.Equal(t, 200, recorder.Code)
+	assert.Equal(t, "text/html", recorder.Header().Get("Content-Type"))
 	assert.Contains(t, recorder.Body.String(), "/key1")
 	assert.Contains(t, recorder.Body.String(), "/prefix1")
 	assert.Contains(t, recorder.Body.String(), "2K")
+
+	recorder = httptest.NewRecorder()
+	req, err = http.NewRequest("GET", "/", nil)
+	req.Header.Add("Accept", "application/json")
+	assert.NoError(t, err)
+	bl.ServeHTTP(recorder, req)
+
+	assert.Equal(t, 200, recorder.Code)
+	assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
+	res := new(PrefixListing)
+	err = json.Unmarshal(recorder.Body.Bytes(), res)
+	assert.NoError(t, err)
+
+	assert.Equal(t, "prefix1/", res.Prefixes[0])
 }

@@ -8,9 +8,9 @@ import (
 
 // File represents an object in a PrefixListing
 type File struct {
-	Name         string
-	LastModified time.Time
-	Size         int64
+	Name         string    `json:"name"`
+	LastModified time.Time `json:"last_modified"`
+	Size         int64     `json:"size"`
 }
 
 func (f *File) Base() string {
@@ -35,6 +35,6 @@ func (f *File) SizeString() string {
 
 // PrefixListing is a compact listing of an S3 prefix
 type PrefixListing struct {
-	Prefixes []string
-	Files    []*File
+	Prefixes []string `json:"prefixes"`
+	Files    []*File  `json:"files"`
 }

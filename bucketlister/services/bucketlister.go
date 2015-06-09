@@ -1,6 +1,8 @@
 package services
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -151,15 +153,33 @@ func (b *BucketLister) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	tmplParams := &listTemplateInput{
-		Path:          reqPath,
-		PrefixListing: listing,
+	contentType := "text/html"
+	body := new(bytes.Buffer)
+	switch req.Header.Get("Accept") {
+	case "application/json":
+		contentType = "application/json"
+		err := json.NewEncoder(body).Encode(listing)
+		if err != nil {
+			log.Printf("Error encoding JSON err: %s", err)
+		}
+	default:
+		tmplParams := &listTemplateInput{
+			Path:          reqPath,
+			PrefixListing: listing,
+		}
+		err = listTemplate.Execute(body, tmplParams)
+		if err != nil {
+			log.Printf("Error executing template err: %s", err)
+		}
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Internal Server Error."))
+		return
 	}
 
 	setExpiresIn(15*time.Minute, w)
-	w.Header().Set("Content-Type", "text/html")
-	err = listTemplate.Execute(w, tmplParams)
-	if err != nil {
-		log.Printf("Error executing template err: %s", err)
-	}
+	w.Header().Set("Content-Type", contentType)
+	w.Write(body.Bytes())
 }
