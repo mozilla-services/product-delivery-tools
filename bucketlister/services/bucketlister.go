@@ -1,4 +1,4 @@
-package bucketlister
+package services
 
 import (
 	"fmt"
@@ -24,10 +24,10 @@ type BucketLister struct {
 	AWSConfig *aws.Config
 }
 
-// New returns a *BucketLister
+// NewBucketLister returns a *BucketLister
 //
 // prefix is the starting point for this lister
-func New(bucket, prefix string, awsConfig *aws.Config) *BucketLister {
+func NewBucketLister(bucket, prefix string, awsConfig *aws.Config) *BucketLister {
 	trimmedPrefix := strings.Trim(prefix, "/")
 	if trimmedPrefix != "" {
 		trimmedPrefix += "/"

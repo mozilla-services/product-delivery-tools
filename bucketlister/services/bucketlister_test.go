@@ -1,4 +1,4 @@
-package bucketlister
+package services
 
 import (
 	"net/http"
@@ -34,7 +34,7 @@ func TestBucketPrefix(t *testing.T) {
 		},
 		nil,
 	)
-	bl := New("bucket", "/prefix/", nil)
+	bl := NewBucketLister("bucket", "/prefix/", nil)
 
 	assert.Equal(t, bl.basePrefix, "prefix/")
 
