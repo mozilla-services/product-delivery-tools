@@ -19,14 +19,14 @@ type BucketMount struct {
 var ProdBucketMap = BucketMap{
 	Default: "archive",
 	Mounts: []BucketMount{
-		BucketMount{"firefox/try-builds/", "firefox-try"},
-		BucketMount{"firefox/", "firefox"},
-		BucketMount{"mobile/try-builds/", "firefox-android-try"},
-		BucketMount{"mobile/", "firefox-android"},
-		BucketMount{"opus/", "opus"},
-		BucketMount{"thunderbird/try-builds/", "thunderbird-try"},
-		BucketMount{"thunderbird/", "thunderbird"},
-		BucketMount{"xulrunner/try-builds/", "xulrunner-try"},
-		BucketMount{"xulrunner/", "xulrunner"},
+		BucketMount{"pub/firefox/try-builds/", "firefox-try"},
+		BucketMount{"pub/firefox/", "firefox"},
+		BucketMount{"pub/mobile/try-builds/", "firefox-android-try"},
+		BucketMount{"pub/mobile/", "firefox-android"},
+		BucketMount{"pub/opus/", "opus"},
+		BucketMount{"pub/thunderbird/try-builds/", "thunderbird-try"},
+		BucketMount{"pub/thunderbird/", "thunderbird"},
+		BucketMount{"pub/xulrunner/try-builds/", "xulrunner-try"},
+		BucketMount{"pub/xulrunner/", "xulrunner"},
 	},
 }

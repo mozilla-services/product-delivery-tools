@@ -13,6 +13,7 @@ var partialMarRe = regexp.MustCompile(`\.partial\..*\.mar(\.asc)?$`)
 
 // Release contains options for deploying files to S3
 type Release struct {
+	RootDir   string
 	SourceDir string
 
 	Branch             string
@@ -34,24 +35,25 @@ type Release struct {
 func NewRelease(sourceDir, product string) *Release {
 	return &Release{
 		Product:   product,
+		RootDir:   "pub",
 		SourceDir: sourceDir,
 	}
 }
 
 func (r *Release) nightlyPath() string {
-	return filepath.Join(r.Product, r.NightlyDir)
+	return filepath.Join(r.RootDir, r.Product, r.NightlyDir)
 }
 
 func (r *Release) tinderboxBuildsPath() string {
-	return filepath.Join(r.Product, "tinderbox-builds", r.TinderboxBuildsDir)
+	return filepath.Join(r.RootDir, r.Product, "tinderbox-builds", r.TinderboxBuildsDir)
 }
 
 func (r *Release) candidatesPath() string {
-	return filepath.Join(r.Product, "candidates")
+	return filepath.Join(r.RootDir, r.Product, "candidates")
 }
 
 func (r *Release) tryBuildsPath() string {
-	return filepath.Join(r.Product, "try-builds", r.Who+"-"+r.Revision, r.BuildDir)
+	return filepath.Join(r.RootDir, r.Product, "try-builds", r.Who+"-"+r.Revision, r.BuildDir)
 }
 
 func (r *Release) platform() string {
