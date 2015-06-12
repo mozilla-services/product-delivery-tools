@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"sort"
 	"strings"
 	"time"
 
@@ -32,6 +33,7 @@ func main() {
 }
 
 func mountListers(rootLister *services.BucketLister, listers []*services.BucketLister) {
+	sort.Sort(sort.Reverse(services.SortMountedAt(listers)))
 	for _, l := range listers {
 		mountTo := rootLister
 		for _, other := range listers {

@@ -15,6 +15,15 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
+// SortMountedAt sorts a slice of bucketlisters by mountedAt
+type SortMountedAt []*BucketLister
+
+func (s SortMountedAt) Len() int { return len(s) }
+
+func (s SortMountedAt) Less(i, j int) bool { return s[i].mountedAt < s[j].mountedAt }
+
+func (s SortMountedAt) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
+
 // BucketLister is a directory listing service for S3
 type BucketLister struct {
 	Bucket     string
