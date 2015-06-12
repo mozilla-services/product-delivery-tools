@@ -126,9 +126,6 @@ func (b *BucketLister) listPrefix(reqPath, prefix string) (*PrefixListing, error
 	sort.Strings(listing.Prefixes)
 
 	for _, o := range objects {
-		if *o.Key == prefix {
-			continue
-		}
 		o := objectToListFileInfo(o)
 		o.Name = strings.TrimPrefix(o.Name, prefix)
 		listing.Files = append(listing.Files, o)
