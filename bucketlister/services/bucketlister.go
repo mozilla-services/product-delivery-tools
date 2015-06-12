@@ -21,7 +21,7 @@ type BucketLister struct {
 	mountedAt  string
 	basePrefix string
 
-	listers map[string][]*BucketLister
+	listers []*BucketLister
 
 	AWSConfig *aws.Config
 }
@@ -39,19 +39,19 @@ func NewBucketLister(bucket, prefix string, awsConfig *aws.Config) *BucketLister
 		Bucket:     bucket,
 		mountedAt:  "/" + trimmedPrefix,
 		basePrefix: trimmedPrefix,
-		listers:    make(map[string][]*BucketLister),
+		listers:    []*BucketLister{},
 	}
 }
 
 // AddBucketLister adds a lister to the root lister
 //
 // If a lister is attached, it will show up as a directory link
-func (b *BucketLister) AddBucketLister(mount string, child *BucketLister) {
-	if b.listers[mount] == nil {
-		b.listers[mount] = []*BucketLister{child}
+func (b *BucketLister) AddBucketLister(child *BucketLister) {
+	if b.listers == nil {
+		b.listers = []*BucketLister{child}
 		return
 	}
-	b.listers[mount] = append(b.listers[mount], child)
+	b.listers = append(b.listers, child)
 }
 
 // Empty returns true if the bucket contains zero keys
@@ -78,19 +78,29 @@ func objectToListFileInfo(obj *s3.Object) *File {
 	}
 }
 
+// Mount returns the mount point of this lister
+func (b *BucketLister) Mount() string {
+	return b.mountedAt
+}
+
 func (b *BucketLister) listerDirs(reqPath string) []string {
-	dirs := []string{}
-	for _, lister := range b.listers[reqPath] {
-		if empty, err := lister.Empty(); empty {
-			if err != nil {
-				log.Println("Error checking empty: %s", err)
+	dirs := make(map[string]bool)
+	for _, lister := range b.listers {
+		if strings.HasPrefix(lister.mountedAt, reqPath) {
+			tmp := strings.TrimPrefix(lister.mountedAt, reqPath)
+			idx := strings.Index(tmp, "/")
+			if idx > 0 {
+				tmp = tmp[0:idx]
 			}
-			continue
+			dirs[path.Base(tmp)+"/"] = true
 		}
-		dirs = append(dirs, path.Base(lister.mountedAt)+"/")
 	}
 
-	return dirs
+	res := make([]string, 0, len(dirs))
+	for k := range dirs {
+		res = append(res, k)
+	}
+	return res
 }
 
 func (b *BucketLister) listPrefix(reqPath, prefix string) (*PrefixListing, error) {
@@ -147,7 +157,7 @@ func (b *BucketLister) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if len(listing.Files) == 0 && len(listing.Prefixes) == 0 {
+	if reqPath != b.mountedAt && len(listing.Files) == 0 && len(listing.Prefixes) == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("Not Found"))
 		return

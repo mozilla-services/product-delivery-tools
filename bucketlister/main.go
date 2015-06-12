@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/codegangsta/cli"
@@ -30,6 +31,22 @@ func main() {
 	app.RunAndExitOnError()
 }
 
+func mountListers(rootLister *services.BucketLister, listers []*services.BucketLister) {
+	for _, l := range listers {
+		mountTo := rootLister
+		for _, other := range listers {
+			if l == other {
+				continue
+			}
+			if strings.HasPrefix(l.Mount(), other.Mount()) {
+				mountTo = other
+				break
+			}
+		}
+		mountTo.AddBucketLister(l)
+	}
+}
+
 func doMain(c *cli.Context) {
 	mozlog.UseMozLogger(c.String("logger"))
 	if c.String("dogstatsd-ip") != "" {
@@ -45,11 +62,12 @@ func doMain(c *cli.Context) {
 		deliverytools.AWSConfig,
 	)
 
+	listers := []*services.BucketLister{}
 	lister := func(suffix, prefix string) http.Handler {
 		bl := services.NewBucketLister(
 			c.String("bucket-prefix")+"-"+suffix, prefix, deliverytools.AWSConfig)
 
-		rootLister.AddBucketLister("/", bl)
+		listers = append(listers, bl)
 		return bl
 	}
 
@@ -63,6 +81,8 @@ func doMain(c *cli.Context) {
 	for _, mount := range deliverytools.ProdBucketMap.Mounts {
 		http.Handle("/"+mount.Prefix, lister(mount.Bucket, "/"+mount.Prefix))
 	}
+
+	mountListers(rootLister, listers)
 
 	err := http.ListenAndServe(c.String("addr"), nil)
 	if err != nil {
