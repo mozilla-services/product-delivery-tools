@@ -112,6 +112,18 @@ func (b *BucketLister) listerDirs(reqPath string) []string {
 	return res
 }
 
+func deduplicateSlice(slice []string) []string {
+	keys := make(map[string]bool)
+	for _, k := range slice {
+		keys[k] = true
+	}
+	result := make([]string, 0, len(keys))
+	for k := range keys {
+		result = append(result, k)
+	}
+	return result
+}
+
 func (b *BucketLister) listPrefix(reqPath, prefix string) (*PrefixListing, error) {
 	s3Service := s3.New(b.AWSConfig)
 	objects, prefixes, err := listObjects(s3Service, b.Bucket, prefix)
@@ -130,7 +142,7 @@ func (b *BucketLister) listPrefix(reqPath, prefix string) (*PrefixListing, error
 		listing.Prefixes[i] = path.Base(*p.Prefix) + "/"
 	}
 
-	listing.Prefixes = append(listing.Prefixes, extraDirs...)
+	listing.Prefixes = deduplicateSlice(append(listing.Prefixes, extraDirs...))
 
 	sort.Strings(listing.Prefixes)
 
