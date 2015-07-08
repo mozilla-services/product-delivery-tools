@@ -42,9 +42,9 @@ func TestReleaseToLatest(t *testing.T) {
 	files := []FileTest{
 		FileTest{"/tmp/src/crashreporter-symbols.zip", nil},
 		FileTest{"/tmp/src/file.partial.foo.mar", nil},
-		FileTest{"/tmp/src/subdir/file", []string{"pub/mozilla.org/firefox/nightly/latest-l10n/build-dir/file"}},
-		FileTest{"/tmp/src/path1/path2/test.xpi", []string{"pub/mozilla.org/firefox/nightly/latest-l10n/build-dir/path1/path2/test.xpi"}},
-		FileTest{"/tmp/src/mar.exe", []string{"pub/mozilla.org/firefox/nightly/latest-l10n/build-dir/mar-tools/win32/mar.exe"}},
+		FileTest{"/tmp/src/subdir/file", []string{"pub/firefox/nightly/latest-l10n/build-dir/file"}},
+		FileTest{"/tmp/src/path1/path2/test.xpi", []string{"pub/firefox/nightly/latest-l10n/build-dir/path1/path2/test.xpi"}},
+		FileTest{"/tmp/src/mar.exe", []string{"pub/firefox/nightly/latest-l10n/build-dir/mar-tools/win32/mar.exe"}},
 	}
 	for _, file := range files {
 		dests, err := rel.ToLatest(file.Src)
@@ -65,8 +65,8 @@ func TestReleaseToDated(t *testing.T) {
 	rel.BuildID = mustBuildID("20150101223305")
 
 	files := []FileTest{
-		FileTest{"/tmp/src/subdir/file", []string{"pub/mozilla.org/firefox/nightly/2015/01/2015-01-01-22-33-05-l10n/build-dir/file"}},
-		FileTest{"/tmp/src/path1/path2/test.xpi", []string{"pub/mozilla.org/firefox/nightly/2015/01/2015-01-01-22-33-05-l10n/build-dir/path1/path2/test.xpi"}},
+		FileTest{"/tmp/src/subdir/file", []string{"pub/firefox/nightly/2015/01/2015-01-01-22-33-05-l10n/build-dir/file"}},
+		FileTest{"/tmp/src/path1/path2/test.xpi", []string{"pub/firefox/nightly/2015/01/2015-01-01-22-33-05-l10n/build-dir/path1/path2/test.xpi"}},
 	}
 
 	for _, file := range files {
@@ -86,9 +86,9 @@ func TestReleaseToCandidates(t *testing.T) {
 	rel.Signed = false
 
 	files := []FileTest{
-		FileTest{"/tmp/src/subdir/file", []string{"pub/mozilla.org/firefox/nightly/32-candidates/build23/build-dir/subdir/file"}},
-		FileTest{"/tmp/src/subdir/win32-file", []string{"pub/mozilla.org/firefox/nightly/32-candidates/build23/unsigned/build-dir/subdir/win32-file"}},
-		FileTest{"/tmp/src/mar.exe", []string{"pub/mozilla.org/firefox/nightly/32-candidates/build23/mar-tools/win32/mar.exe"}},
+		FileTest{"/tmp/src/subdir/file", []string{"pub/firefox/nightly/32-candidates/build23/build-dir/subdir/file"}},
+		FileTest{"/tmp/src/subdir/win32-file", []string{"pub/firefox/nightly/32-candidates/build23/unsigned/build-dir/subdir/win32-file"}},
+		FileTest{"/tmp/src/mar.exe", []string{"pub/firefox/nightly/32-candidates/build23/mar-tools/win32/mar.exe"}},
 	}
 	for _, file := range files {
 		dests, err := rel.ToCandidates(file.Src)
@@ -107,9 +107,9 @@ func TestReleaseToMobileCandidates(t *testing.T) {
 	rel.Signed = false
 
 	files := []FileTest{
-		FileTest{"/tmp/src/subdir/file", []string{"pub/mozilla.org/firefox/nightly/32-candidates/build23/build-dir/subdir/file"}},
-		FileTest{"/tmp/src/subdir/win32-file", []string{"pub/mozilla.org/firefox/nightly/32-candidates/build23/build-dir/subdir/win32-file"}},
-		FileTest{"/tmp/src/mar.exe", []string{"pub/mozilla.org/firefox/nightly/32-candidates/build23/build-dir/mar.exe"}},
+		FileTest{"/tmp/src/subdir/file", []string{"pub/firefox/nightly/32-candidates/build23/build-dir/subdir/file"}},
+		FileTest{"/tmp/src/subdir/win32-file", []string{"pub/firefox/nightly/32-candidates/build23/build-dir/subdir/win32-file"}},
+		FileTest{"/tmp/src/mar.exe", []string{"pub/firefox/nightly/32-candidates/build23/build-dir/mar.exe"}},
 	}
 	for _, file := range files {
 		dests, err := rel.ToMobileCandidates(file.Src)
@@ -130,9 +130,9 @@ func TestReleaseToTryBuilds(t *testing.T) {
 	rel.Revision = "r33"
 
 	files := []FileTest{
-		FileTest{"/tmp/src/subdir/file", []string{"pub/mozilla.org/firefox/try-builds/testuser-r33/build-dir/file"}},
-		FileTest{"/tmp/src/subdir/win32-file", []string{"pub/mozilla.org/firefox/try-builds/testuser-r33/build-dir/win32-file"}},
-		FileTest{"/tmp/src/mar.exe", []string{"pub/mozilla.org/firefox/try-builds/testuser-r33/build-dir/mar.exe"}},
+		FileTest{"/tmp/src/subdir/file", []string{"pub/firefox/try-builds/testuser-r33/build-dir/file"}},
+		FileTest{"/tmp/src/subdir/win32-file", []string{"pub/firefox/try-builds/testuser-r33/build-dir/win32-file"}},
+		FileTest{"/tmp/src/mar.exe", []string{"pub/firefox/try-builds/testuser-r33/build-dir/mar.exe"}},
 	}
 	for _, file := range files {
 		dests, err := rel.ToTryBuilds(file.Src)
@@ -147,8 +147,8 @@ func TestReleaseToTinderboxBuilds(t *testing.T) {
 	rel.TinderboxBuildsDir = "mozilla-aurora-l10n"
 
 	files := []FileTest{
-		FileTest{"/tmp/src/subdir/file", []string{"pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-l10n/build-dir/file"}},
-		FileTest{"/tmp/src/subdir/file.xpi", []string{"pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-l10n/build-dir/subdir/file.xpi"}},
+		FileTest{"/tmp/src/subdir/file", []string{"pub/firefox/tinderbox-builds/mozilla-aurora-l10n/build-dir/file"}},
+		FileTest{"/tmp/src/subdir/file.xpi", []string{"pub/firefox/tinderbox-builds/mozilla-aurora-l10n/build-dir/subdir/file.xpi"}},
 		FileTest{"/tmp/src/subdir/file.mar", nil},
 	}
 	for _, file := range files {
@@ -167,8 +167,8 @@ func TestReleaseToDatedTinderboxBuilds(t *testing.T) {
 	println(rel.BuildID.Time().String())
 
 	files := []FileTest{
-		FileTest{"/tmp/src/subdir/file", []string{"pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-l10n/1431500400/build-dir/file"}},
-		FileTest{"/tmp/src/subdir/file.xpi", []string{"pub/mozilla.org/firefox/tinderbox-builds/mozilla-aurora-l10n/1431500400/build-dir/subdir/file.xpi"}},
+		FileTest{"/tmp/src/subdir/file", []string{"pub/firefox/tinderbox-builds/mozilla-aurora-l10n/1431500400/build-dir/file"}},
+		FileTest{"/tmp/src/subdir/file.xpi", []string{"pub/firefox/tinderbox-builds/mozilla-aurora-l10n/1431500400/build-dir/subdir/file.xpi"}},
 		FileTest{"/tmp/src/subdir/file.mar", nil},
 	}
 	for _, file := range files {
