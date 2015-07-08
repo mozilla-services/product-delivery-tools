@@ -35,7 +35,7 @@ type Release struct {
 func NewRelease(sourceDir, product string) *Release {
 	return &Release{
 		Product:   product,
-		RootDir:   "pub/mozilla.org",
+		RootDir:   "pub",
 		SourceDir: sourceDir,
 	}
 }
