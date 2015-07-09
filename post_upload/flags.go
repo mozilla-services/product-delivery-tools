@@ -30,6 +30,10 @@ var Flags = []cli.Flag{
 		Value: "net-mozaws-prod-delivery",
 		Usage: "Sets S3 bucket prefix"},
 	cli.StringFlag{
+		Name:  "url-prefix",
+		Value: "http://releases.mozilla.org/",
+		Usage: "Sets URL prefix. (Only affects output)"},
+	cli.StringFlag{
 		Name: "nightly-dir", Value: "nightly",
 		Usage: "Set the base directory for nightlies (ie $product/$nightly_dir/}, and the parent directory for release candidates (default 'nightly'}."},
 	cli.StringFlag{Name: "branch, b", Usage: "Set branch name to build paths properly."},

@@ -125,12 +125,16 @@ func doMain(c *cli.Context) {
 
 		for _, dest := range dests {
 			bucket := bucketPrefix + "-" + destToBucket(dest)
+			url := c.String("url-prefix") + dest
 			if c.Bool("dry-run") {
 				fmt.Printf("%s -> %s:%s\n", file, bucket, dest)
+				fmt.Fprintln(os.Stderr, url)
 				continue
 			}
 			if err := s3CopyFile(file, bucket, dest); err != nil {
 				log.Println(err)
+			} else {
+				fmt.Fprintln(os.Stderr, url)
 			}
 		}
 	}
