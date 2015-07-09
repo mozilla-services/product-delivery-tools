@@ -50,7 +50,12 @@ func s3PutFile(src, bucket, key string) error {
 }
 
 func s3CopyFile(src, bucket, key string) error {
+	destKey := "/" + bucket + "/" + key
 	if cpSrc, ok := s3FileCache[src]; ok {
+		// File has already been copied, so move on.
+		if cpSrc == destKey {
+			return nil
+		}
 		return s3CopyObject(cpSrc, bucket, key)
 	}
 
@@ -58,6 +63,6 @@ func s3CopyFile(src, bucket, key string) error {
 		return err
 	}
 
-	s3FileCache[src] = "/" + bucket + "/" + key
+	s3FileCache[src] = destKey
 	return nil
 }
