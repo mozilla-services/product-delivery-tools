@@ -19,6 +19,7 @@ type BucketMount struct {
 var ProdBucketMap = BucketMap{
 	Default: "archive",
 	Mounts: []BucketMount{
+		BucketMount{"pub/firefox/bundles/", "archive"},
 		BucketMount{"pub/firefox/try-builds/", "archive"},
 		BucketMount{"pub/firefox/", "firefox"},
 	},
