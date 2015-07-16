@@ -63,7 +63,7 @@ var listTemplate = template.Must(template.New("List").Parse(`<!DOCTYPE html>
 			{{range $file := .PrefixListing.Files}}
 			{{if ne $file.Base "."}}
 			<tr>
-				<td>File</th>
+				<td>File</td>
 				<td><a href="{{$.Path}}{{$file.Base}}">{{$file.Base}}</a></td>
 				<td>{{$file.SizeString}}</td>
 				<td>{{$file.LastModifiedString}}</td>
