@@ -93,7 +93,7 @@ func doMain(c *cli.Context) {
 	boolRequireArgs(release.ToCandidates, "release-to-candidates-dir", "version", "build-number")
 	boolRequireArgs(release.ToMobileCandidates, "release-to-mobile-candidates-dir", "version", "build-number", "builddir")
 	boolRequireArgs(release.ToTinderboxBuilds, "release-to-tinderbox-builds", "tinderbox-builds-dir")
-	boolRequireArgs(release.ToDatedTinderboxBuilds, "release-to-dated-tinderbox-builds", "tinderbox-builds-dir", "buildid")
+	boolRequireArgs(release.ToDatedTinderboxBuilds, "release-to-tinderbox-dated-builds", "tinderbox-builds-dir", "buildid")
 	boolRequireArgs(release.ToTryBuilds, "release-to-try-builds", "who", "revision", "builddir")
 
 	if len(errs) > 0 {
