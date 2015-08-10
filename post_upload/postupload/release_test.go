@@ -86,9 +86,9 @@ func TestReleaseToCandidates(t *testing.T) {
 	rel.Signed = false
 
 	files := []FileTest{
-		FileTest{"/tmp/src/subdir/file", []string{"pub/firefox/nightly/32-candidates/build23/build-dir/subdir/file"}},
-		FileTest{"/tmp/src/subdir/win32-file", []string{"pub/firefox/nightly/32-candidates/build23/unsigned/build-dir/subdir/win32-file"}},
-		FileTest{"/tmp/src/mar.exe", []string{"pub/firefox/nightly/32-candidates/build23/mar-tools/win32/mar.exe"}},
+		FileTest{"/tmp/src/subdir/file", []string{"pub/firefox/candidates/32-candidates/build23/build-dir/subdir/file"}},
+		FileTest{"/tmp/src/subdir/win32-file", []string{"pub/firefox/candidates/32-candidates/build23/unsigned/build-dir/subdir/win32-file"}},
+		FileTest{"/tmp/src/mar.exe", []string{"pub/firefox/candidates/32-candidates/build23/mar-tools/win32/mar.exe"}},
 	}
 	for _, file := range files {
 		dests, err := rel.ToCandidates(file.Src)
@@ -107,9 +107,9 @@ func TestReleaseToMobileCandidates(t *testing.T) {
 	rel.Signed = false
 
 	files := []FileTest{
-		FileTest{"/tmp/src/subdir/file", []string{"pub/firefox/nightly/32-candidates/build23/build-dir/subdir/file"}},
-		FileTest{"/tmp/src/subdir/win32-file", []string{"pub/firefox/nightly/32-candidates/build23/build-dir/subdir/win32-file"}},
-		FileTest{"/tmp/src/mar.exe", []string{"pub/firefox/nightly/32-candidates/build23/build-dir/mar.exe"}},
+		FileTest{"/tmp/src/subdir/file", []string{"pub/firefox/candidates/32-candidates/build23/build-dir/subdir/file"}},
+		FileTest{"/tmp/src/subdir/win32-file", []string{"pub/firefox/candidates/32-candidates/build23/build-dir/subdir/win32-file"}},
+		FileTest{"/tmp/src/mar.exe", []string{"pub/firefox/candidates/32-candidates/build23/build-dir/mar.exe"}},
 	}
 	for _, file := range files {
 		dests, err := rel.ToMobileCandidates(file.Src)
