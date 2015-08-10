@@ -149,7 +149,7 @@ func (r *Release) ToDated(file string) ([]string, error) {
 
 // ToCandidates returns destinations for candidates
 func (r *Release) ToCandidates(file string) ([]string, error) {
-	path := filepath.Join(r.nightlyPath(), r.Version+"-candidates", "build"+r.BuildNumber)
+	path := filepath.Join(r.candidatesPath(), r.Version+"-candidates", "build"+r.BuildNumber)
 	marToolsPath := filepath.Join(path, "mar-tools")
 
 	if !r.Signed && strings.Contains(file, "win32") && !strings.Contains(file, "/logs/") {
@@ -169,7 +169,7 @@ func (r *Release) ToCandidates(file string) ([]string, error) {
 
 // ToMobileCandidates returns destinations for mobile candidates
 func (r *Release) ToMobileCandidates(file string) ([]string, error) {
-	path := filepath.Join(r.nightlyPath(), r.Version+"-candidates", "build"+r.BuildNumber, r.BuildDir)
+	path := filepath.Join(r.candidatesPath(), r.Version+"-candidates", "build"+r.BuildNumber, r.BuildDir)
 	return r.resolvePath(file, path, true)
 }
 
