@@ -17,9 +17,10 @@ var s3FileCache = map[string]string{}
 
 func s3CopyObject(src, bucket, key string) error {
 	copyInput := &s3.CopyObjectInput{
-		Bucket:     aws.String(bucket),
-		CopySource: aws.String(src),
-		Key:        aws.String(key),
+		Bucket:      aws.String(bucket),
+		ContentType: aws.String(ContentType(key)),
+		CopySource:  aws.String(src),
+		Key:         aws.String(key),
 	}
 
 	_, err := s3Service().CopyObject(copyInput)
@@ -38,9 +39,10 @@ func s3PutFile(src, bucket, key string) error {
 	defer file.Close()
 
 	putObjectInput := &s3.PutObjectInput{
-		Body:   file,
-		Bucket: aws.String(bucket),
-		Key:    aws.String(key),
+		Body:        file,
+		Bucket:      aws.String(bucket),
+		ContentType: aws.String(ContentType(key)),
+		Key:         aws.String(key),
 	}
 	_, err = s3Service().PutObject(putObjectInput)
 	if err != nil {
