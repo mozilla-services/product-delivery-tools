@@ -15,7 +15,7 @@ GLOBAL OPTIONS:
    --product, -p 				Set product name to build paths properly.
    --version, -v 				Set version number to build paths properly.
    --bucket-prefix "net-mozaws-prod-delivery"	Sets S3 bucket prefix
-   --url-prefix "http://releases.mozilla.org/"	Sets URL prefix. (Only affects output)
+   --url-prefix "http://archive.mozilla.org/"	Sets URL prefix. (Only affects output)
    --nightly-dir "nightly"			Set the base directory for nightlies (ie $product/$nightly_dir/}, and the parent directory for release candidates (default 'nightly'}.
    --branch, -b 				Set branch name to build paths properly.
    --buildid, i ""				Set buildid to build paths properly.
