@@ -117,7 +117,7 @@ func doMain(c *cli.Context) {
 		for _, action := range pathActions {
 			actionDests, err := action(file)
 			if err != nil {
-				log.Printf("file: %s, err: %s", file, err)
+				log.Fatalf("file: %s, err: %s", file, err)
 				continue
 			}
 			dests = append(dests, actionDests...)
@@ -132,7 +132,7 @@ func doMain(c *cli.Context) {
 				continue
 			}
 			if err := s3CopyFile(file, bucket, dest); err != nil {
-				log.Println(err)
+				log.Fatal(err)
 			} else {
 				fmt.Fprintln(os.Stderr, url)
 			}
