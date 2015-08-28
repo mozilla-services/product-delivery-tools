@@ -44,6 +44,7 @@ func TestReleaseToLatest(t *testing.T) {
 		FileTest{"/tmp/src/file.partial.foo.mar", nil},
 		FileTest{"/tmp/src/subdir/file", []string{"pub/firefox/nightly/latest-l10n/build-dir/file"}},
 		FileTest{"/tmp/src/path1/path2/test.xpi", []string{"pub/firefox/nightly/latest-l10n/build-dir/path1/path2/test.xpi"}},
+		FileTest{"/tmp/src/host/bin/mar.exe", []string{"pub/firefox/nightly/latest-l10n/build-dir/mar-tools/win32/mar.exe"}},
 		FileTest{"/tmp/src/mar.exe", []string{"pub/firefox/nightly/latest-l10n/build-dir/mar-tools/win32/mar.exe"}},
 	}
 	for _, file := range files {
@@ -85,16 +86,30 @@ func TestReleaseToCandidates(t *testing.T) {
 	rel.Version = "32"
 	rel.Signed = false
 
+	runTests := func(files []FileTest) {
+		for _, file := range files {
+			dests, err := rel.ToCandidates(file.Src)
+			assert.Nil(err)
+			assert.Equal(file.Dests, dests)
+		}
+	}
+
 	files := []FileTest{
 		FileTest{"/tmp/src/subdir/file", []string{"pub/firefox/candidates/32-candidates/build23/build-dir/subdir/file"}},
 		FileTest{"/tmp/src/subdir/win32-file", []string{"pub/firefox/candidates/32-candidates/build23/unsigned/build-dir/subdir/win32-file"}},
+		FileTest{"/tmp/src/host/bin/mar.exe", []string{"pub/firefox/candidates/32-candidates/build23/mar-tools/win32/mar.exe"}},
 		FileTest{"/tmp/src/mar.exe", []string{"pub/firefox/candidates/32-candidates/build23/mar-tools/win32/mar.exe"}},
 	}
-	for _, file := range files {
-		dests, err := rel.ToCandidates(file.Src)
-		assert.Nil(err)
-		assert.Equal(file.Dests, dests)
+
+	runTests(files)
+
+	rel.Signed = true
+
+	files = []FileTest{
+		FileTest{"/tmp/src/subdir/win32-file", []string{"pub/firefox/candidates/32-candidates/build23/build-dir/subdir/win32-file"}},
 	}
+
+	runTests(files)
 }
 
 func TestReleaseToMobileCandidates(t *testing.T) {
@@ -109,7 +124,6 @@ func TestReleaseToMobileCandidates(t *testing.T) {
 	files := []FileTest{
 		FileTest{"/tmp/src/subdir/file", []string{"pub/firefox/candidates/32-candidates/build23/build-dir/subdir/file"}},
 		FileTest{"/tmp/src/subdir/win32-file", []string{"pub/firefox/candidates/32-candidates/build23/build-dir/subdir/win32-file"}},
-		FileTest{"/tmp/src/mar.exe", []string{"pub/firefox/candidates/32-candidates/build23/build-dir/mar.exe"}},
 	}
 	for _, file := range files {
 		dests, err := rel.ToMobileCandidates(file.Src)

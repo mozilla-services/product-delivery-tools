@@ -57,6 +57,10 @@ func (r *Release) tryBuildsPath() string {
 }
 
 func (r *Release) platform() string {
+	if r.TinderboxBuildsDir == "" {
+		return ""
+	}
+
 	for _, p := range platforms {
 		if strings.HasSuffix(r.TinderboxBuildsDir, "-"+p) {
 			return p
@@ -160,7 +164,7 @@ func (r *Release) ToCandidates(file string) ([]string, error) {
 
 	if isMarTool(file) {
 		if platform := r.platform(); platform != "" {
-			return r.resolvePath(file, filepath.Join(marToolsPath, platform), true)
+			return r.resolvePath(file, filepath.Join(marToolsPath, platform), false)
 		}
 	}
 
