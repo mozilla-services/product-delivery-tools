@@ -124,8 +124,6 @@ func TestReleaseToMobileCandidates(t *testing.T) {
 	files := []FileTest{
 		FileTest{"/tmp/src/subdir/file", []string{"pub/firefox/candidates/32-candidates/build23/build-dir/subdir/file"}},
 		FileTest{"/tmp/src/subdir/win32-file", []string{"pub/firefox/candidates/32-candidates/build23/build-dir/subdir/win32-file"}},
-		FileTest{"/tmp/src/host/bin/mar.exe", []string{"pub/firefox/candidates/32-candidates/build23/build-dir/host/bin/mar.exe"}},
-		FileTest{"/tmp/src/mar.exe", []string{"pub/firefox/candidates/32-candidates/build23/build-dir/mar.exe"}},
 	}
 	for _, file := range files {
 		dests, err := rel.ToMobileCandidates(file.Src)
