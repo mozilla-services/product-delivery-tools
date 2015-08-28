@@ -25,7 +25,7 @@ func TestBucketPrefix(t *testing.T) {
 			&s3.Object{
 				Key:          aws.String("key1"),
 				LastModified: &now,
-				Size:         aws.Long(2048),
+				Size:         aws.Int64(2048),
 			},
 		},
 		[]*s3.CommonPrefix{

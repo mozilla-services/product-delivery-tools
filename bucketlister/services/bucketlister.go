@@ -67,7 +67,7 @@ func (b *BucketLister) AddBucketLister(child *BucketLister) {
 func (b *BucketLister) Empty() (bool, error) {
 	listParams := &s3.ListObjectsInput{
 		Bucket:  aws.String(b.Bucket),
-		MaxKeys: aws.Long(1),
+		MaxKeys: aws.Int64(1),
 	}
 
 	s3Service := s3.New(b.AWSConfig)
