@@ -17,6 +17,15 @@ type listTemplateInput struct {
 	PrefixListing *PrefixListing
 }
 
+func (l *listTemplateInput) PathEscaped() string {
+	parts := strings.Split(l.Path, "/")
+	escapedParts := make([]string, len(parts))
+	for i, p := range parts {
+		escapedParts[i] = template.URLQueryEscaper(p)
+	}
+	return strings.Join(escapedParts, "/")
+}
+
 func (l *listTemplateInput) Parent() string {
 	if l.Path == "/" {
 		return "/"
@@ -52,10 +61,10 @@ var listTemplate = template.Must(template.New("List").Parse(`<!DOCTYPE html>
 				<td></td>
 			</tr>
 			{{end}}
-			{{range $dir := .PrefixListing.Prefixes}}
+			{{range $dir := .PrefixListing.PrefixStructs}}
 			<tr>
 				<td>Dir</td>
-				<td><a href="{{$.Path}}{{$dir}}">{{.}}</a></td>
+				<td><a href="{{$.PathEscaped}}{{$dir.Escaped}}">{{.}}</a></td>
 				<td></td>
 				<td></td>
 			</tr>
@@ -64,7 +73,7 @@ var listTemplate = template.Must(template.New("List").Parse(`<!DOCTYPE html>
 			{{if ne $file.Base "."}}
 			<tr>
 				<td>File</td>
-				<td><a href="{{$.Path}}{{$file.Base}}">{{$file.Base}}</a></td>
+				<td><a href="{{$.PathEscaped}}{{$file.BaseEscaped}}">{{$file.Base}}</a></td>
 				<td>{{$file.SizeString}}</td>
 				<td>{{$file.LastModifiedString}}</td>
 			</tr>
