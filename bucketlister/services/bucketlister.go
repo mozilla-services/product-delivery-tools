@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"path"
@@ -178,6 +179,30 @@ func (b *BucketLister) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if reqPath != b.mountedAt && len(listing.Files) == 0 && len(listing.Prefixes) == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("Not Found"))
+		return
+	}
+
+	if file := listing.HasFile("index.html"); file != nil {
+		setExpiresIn(15*time.Minute, w)
+		w.Header().Set("Content-Type", "text/html")
+
+		s3Service := s3.New(b.AWSConfig)
+		params := &s3.GetObjectInput{
+			Bucket: aws.String(b.Bucket),
+			Key:    aws.String(file.Name),
+		}
+
+		resp, err := s3Service.GetObject(params)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("Internal Server Error."))
+			log.Printf("Error %s", err)
+			return
+		}
+		if resp.Body != nil {
+			defer resp.Body.Close()
+			io.Copy(w, resp.Body)
+		}
 		return
 	}
 
