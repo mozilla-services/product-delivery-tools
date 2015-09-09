@@ -189,7 +189,7 @@ func (b *BucketLister) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		s3Service := s3.New(b.AWSConfig)
 		params := &s3.GetObjectInput{
 			Bucket: aws.String(b.Bucket),
-			Key:    aws.String(file.Name),
+			Key:    aws.String(prefix + file.Name),
 		}
 
 		resp, err := s3Service.GetObject(params)
