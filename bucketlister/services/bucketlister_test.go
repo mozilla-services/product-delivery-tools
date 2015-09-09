@@ -27,10 +27,15 @@ func TestBucketPrefix(t *testing.T) {
 				LastModified: &now,
 				Size:         aws.Int64(2048),
 			},
+			&s3.Object{
+				Key:          aws.String("/pub/firebird/MozillaFirebird-i686-linux-gtk2+xft.tar.gz"),
+				LastModified: &now,
+				Size:         aws.Int64(2048),
+			},
 		},
 		[]*s3.CommonPrefix{
 			&s3.CommonPrefix{
-				Prefix: aws.String("prefix1"),
+				Prefix: aws.String("prefix+1"),
 			},
 		},
 		nil,
@@ -40,15 +45,16 @@ func TestBucketPrefix(t *testing.T) {
 	assert.Equal(t, bl.basePrefix, "prefix/")
 
 	recorder := httptest.NewRecorder()
-	req, err := http.NewRequest("GET", "/", nil)
+	req, err := http.NewRequest("GET", "/pre+fix/", nil)
 	assert.NoError(t, err)
 	bl.ServeHTTP(recorder, req)
 
 	assert.Equal(t, 200, recorder.Code)
 	assert.Equal(t, "text/html", recorder.Header().Get("Content-Type"))
-	assert.Contains(t, recorder.Body.String(), "/key1")
-	assert.Contains(t, recorder.Body.String(), "/prefix1")
+	assert.Contains(t, recorder.Body.String(), "/pre%2Bfix/key1")
+	assert.Contains(t, recorder.Body.String(), "/pre&#43;fix/prefix&#43;1/")
 	assert.Contains(t, recorder.Body.String(), "2K")
+	assert.Contains(t, recorder.Body.String(), "/pre%2Bfix/MozillaFirebird-i686-linux-gtk2%2Bxft.tar.gz")
 
 	recorder = httptest.NewRecorder()
 	req, err = http.NewRequest("GET", "/", nil)
@@ -62,5 +68,5 @@ func TestBucketPrefix(t *testing.T) {
 	err = json.Unmarshal(recorder.Body.Bytes(), res)
 	assert.NoError(t, err)
 
-	assert.Equal(t, "prefix1/", res.Prefixes[0])
+	assert.Equal(t, "prefix+1/", res.Prefixes[0])
 }

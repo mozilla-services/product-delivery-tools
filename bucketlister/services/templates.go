@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+var s3Escaper = strings.NewReplacer("+", `%2B`)
+
 type listFileInfo struct {
 	Key          string
 	LastModified string
@@ -15,6 +17,10 @@ type listFileInfo struct {
 type listTemplateInput struct {
 	Path          string
 	PrefixListing *PrefixListing
+}
+
+func (l *listTemplateInput) PathEscaped() string {
+	return s3Escaper.Replace(l.Path)
 }
 
 func (l *listTemplateInput) Parent() string {
@@ -52,7 +58,7 @@ var listTemplate = template.Must(template.New("List").Parse(`<!DOCTYPE html>
 				<td></td>
 			</tr>
 			{{end}}
-			{{range $dir := .PrefixListing.Prefixes}}
+			{{range $dir := .PrefixListing.PrefixStructs}}
 			<tr>
 				<td>Dir</td>
 				<td><a href="{{$.Path}}{{$dir}}">{{.}}</a></td>
@@ -64,7 +70,7 @@ var listTemplate = template.Must(template.New("List").Parse(`<!DOCTYPE html>
 			{{if ne $file.Base "."}}
 			<tr>
 				<td>File</td>
-				<td><a href="{{$.Path}}{{$file.Base}}">{{$file.Base}}</a></td>
+				<td><a href="{{$.PathEscaped}}{{$file.BaseEscaped}}">{{$file.Base}}</a></td>
 				<td>{{$file.SizeString}}</td>
 				<td>{{$file.LastModifiedString}}</td>
 			</tr>
