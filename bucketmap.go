@@ -22,5 +22,6 @@ var ProdBucketMap = BucketMap{
 		BucketMount{"pub/firefox/bundles/", "archive"},
 		BucketMount{"pub/firefox/try-builds/", "archive"},
 		BucketMount{"pub/firefox/", "firefox"},
+		BucketMount{"pub/labs/", "contrib"},
 	},
 }
