@@ -58,3 +58,13 @@ func (p *PrefixListing) PrefixStructs() []Prefix {
 	}
 	return tmp
 }
+
+// HasFile returns *File if file exists in listing
+func (p *PrefixListing) HasFile(key string) *File {
+	for _, file := range p.Files {
+		if key == file.Base() {
+			return file
+		}
+	}
+	return nil
+}
