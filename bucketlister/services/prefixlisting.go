@@ -3,8 +3,6 @@ package services
 import (
 	"fmt"
 	"path/filepath"
-	"strings"
-	"text/template"
 	"time"
 )
 
@@ -12,12 +10,7 @@ import (
 type Prefix string
 
 func (p Prefix) Escaped() string {
-	parts := strings.Split(string(p), "/")
-	escapedParts := make([]string, len(parts))
-	for i, p := range parts {
-		escapedParts[i] = template.URLQueryEscaper(p)
-	}
-	return strings.Join(escapedParts, "/")
+	return s3Escaper.Replace(string(p))
 }
 
 // File represents an object in a PrefixListing
@@ -28,7 +21,7 @@ type File struct {
 }
 
 func (f *File) BaseEscaped() string {
-	return template.URLQueryEscaper(f.Base())
+	return s3Escaper.Replace(f.Base())
 }
 
 func (f *File) Base() string {

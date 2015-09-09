@@ -52,7 +52,7 @@ func TestBucketPrefix(t *testing.T) {
 	assert.Equal(t, 200, recorder.Code)
 	assert.Equal(t, "text/html", recorder.Header().Get("Content-Type"))
 	assert.Contains(t, recorder.Body.String(), "/pre%2Bfix/key1")
-	assert.Contains(t, recorder.Body.String(), "/pre%2Bfix/prefix%2B1")
+	assert.Contains(t, recorder.Body.String(), "/pre&#43;fix/prefix&#43;1/")
 	assert.Contains(t, recorder.Body.String(), "2K")
 	assert.Contains(t, recorder.Body.String(), "/pre%2Bfix/MozillaFirebird-i686-linux-gtk2%2Bxft.tar.gz")
 

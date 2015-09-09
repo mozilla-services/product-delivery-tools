@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+var s3Escaper = strings.NewReplacer("+", `%2B`)
+
 type listFileInfo struct {
 	Key          string
 	LastModified string
@@ -18,12 +20,7 @@ type listTemplateInput struct {
 }
 
 func (l *listTemplateInput) PathEscaped() string {
-	parts := strings.Split(l.Path, "/")
-	escapedParts := make([]string, len(parts))
-	for i, p := range parts {
-		escapedParts[i] = template.URLQueryEscaper(p)
-	}
-	return strings.Join(escapedParts, "/")
+	return s3Escaper.Replace(l.Path)
 }
 
 func (l *listTemplateInput) Parent() string {
@@ -64,7 +61,7 @@ var listTemplate = template.Must(template.New("List").Parse(`<!DOCTYPE html>
 			{{range $dir := .PrefixListing.PrefixStructs}}
 			<tr>
 				<td>Dir</td>
-				<td><a href="{{$.PathEscaped}}{{$dir.Escaped}}">{{.}}</a></td>
+				<td><a href="{{$.Path}}{{$dir}}">{{.}}</a></td>
 				<td></td>
 				<td></td>
 			</tr>
