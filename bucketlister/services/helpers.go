@@ -23,10 +23,10 @@ var listObjects = func(svc *s3.S3, bucket, prefix string) (objects []*s3.Object,
 		}
 		prefixes = append(prefixes, res.CommonPrefixes...)
 		objects = append(objects, res.Contents...)
-		if res.NextMarker != nil {
-			continue
+		if (res.IsTruncated != nil && !*res.IsTruncated) || res.NextMarker == nil {
+			break
 		}
-		break
+		listParams.Marker = aws.String(*res.NextMarker)
 	}
 	return
 }
