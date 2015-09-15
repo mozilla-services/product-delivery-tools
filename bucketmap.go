@@ -24,5 +24,6 @@ var ProdBucketMap = BucketMap{
 		BucketMount{"pub/firefox/", "firefox"},
 		BucketMount{"pub/labs/", "contrib"},
 		BucketMount{"pub/opus/", "contrib"},
+		BucketMount{"pub/webtools/", "contrib"},
 	},
 }
