@@ -11,6 +11,7 @@ func TestContentType(t *testing.T) {
 		[]string{"/foo/bar/firefox.mar", "application/octet-stream"},
 		[]string{"/foo/bar/firefox.dmg", "application/x-apple-diskimage"},
 		[]string{"/foo/bar/firefox.png", "image/png"},
+		[]string{"/foo/bar/firefox.txt", "text/plain"},
 		[]string{"/foo/bar/firefox.unknown", "application/octet-stream"},
 	}
 
