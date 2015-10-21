@@ -8,11 +8,11 @@ import (
 
 func TestContentType(t *testing.T) {
 	files := [][]string{
-		[]string{"foo/bar/firefox.mar", "application/octet-stream"},
-		[]string{"foo/bar/firefox.dmg", "application/x-apple-diskimage"},
-		[]string{"foo/bar/firefox.png", "image/png"},
-		[]string{"foo/bar/firefox.txt", "text/plain; charset=utf-8"},
-		[]string{"foo/bar/firefox.unknown", "application/octet-stream"},
+		[]string{"foo/bar/firefox-44.0a1.en-US.win32.mar", "application/octet-stream"},
+		[]string{"foo/bar/firefox-44.0a1.en-US.win32.dmg", "application/x-apple-diskimage"},
+		[]string{"foo/bar/firefox-44.0a1.en-US.win32.png", "image/png"},
+		[]string{"foo/bar/firefox-44.0a1.en-US.win32.txt", "text/plain; charset=utf-8"},
+		[]string{"foo/bar/firefox-44.0a1.en-US.win32.unknown", "application/octet-stream"},
 	}
 
 	for _, f := range files {
