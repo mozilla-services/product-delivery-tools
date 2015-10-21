@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -21,6 +22,12 @@ func s3CopyObject(src, bucket, key string) error {
 		ContentType: aws.String(ContentType(key)),
 		CopySource:  aws.String(src),
 		Key:         aws.String(key),
+	}
+
+	// Special case for .txt.gz
+	if strings.HasSuffix(key, ".txt.gz") {
+		copyInput.ContentType = aws.String("text/plain; charset=UTF-8")
+		copyInput.ContentEncoding = aws.String("gzip")
 	}
 
 	_, err := s3Service().CopyObject(copyInput)
@@ -43,6 +50,12 @@ func s3PutFile(src, bucket, key string) error {
 		Bucket:      aws.String(bucket),
 		ContentType: aws.String(ContentType(key)),
 		Key:         aws.String(key),
+	}
+
+	// Special case for .txt.gz
+	if strings.HasSuffix(key, ".txt.gz") {
+		putObjectInput.ContentType = aws.String("text/plain; charset=UTF-8")
+		putObjectInput.ContentEncoding = aws.String("gzip")
 	}
 	_, err = s3Service().PutObject(putObjectInput)
 	if err != nil {
