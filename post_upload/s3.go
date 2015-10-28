@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -16,12 +18,32 @@ func s3Service() *s3.S3 {
 
 var s3FileCache = map[string]string{}
 
+var keyExpiresPatterns = []struct {
+	Pattern  *regexp.Regexp
+	Duration time.Duration
+}{
+	{
+		Pattern:  regexp.MustCompile("^pub/.*/nightly/latest.*"),
+		Duration: 1 * time.Hour,
+	},
+}
+
+func keyCacheControl(key string) *string {
+	for _, p := range keyExpiresPatterns {
+		if p.Pattern.MatchString(key) {
+			return aws.String(fmt.Sprintf("max-age=%d", p.Duration/time.Second))
+		}
+	}
+	return nil
+}
+
 func s3CopyObject(src, bucket, key string) error {
 	copyInput := &s3.CopyObjectInput{
-		Bucket:      aws.String(bucket),
-		ContentType: aws.String(ContentType(key)),
-		CopySource:  aws.String(src),
-		Key:         aws.String(key),
+		Bucket:       aws.String(bucket),
+		CacheControl: keyCacheControl(key),
+		ContentType:  aws.String(ContentType(key)),
+		CopySource:   aws.String(src),
+		Key:          aws.String(key),
 	}
 
 	// Special case for .txt.gz
@@ -46,10 +68,11 @@ func s3PutFile(src, bucket, key string) error {
 	defer file.Close()
 
 	putObjectInput := &s3.PutObjectInput{
-		Body:        file,
-		Bucket:      aws.String(bucket),
-		ContentType: aws.String(ContentType(key)),
-		Key:         aws.String(key),
+		Body:         file,
+		Bucket:       aws.String(bucket),
+		CacheControl: keyCacheControl(key),
+		ContentType:  aws.String(ContentType(key)),
+		Key:          aws.String(key),
 	}
 
 	// Special case for .txt.gz
