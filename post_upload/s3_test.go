@@ -8,8 +8,8 @@ import (
 
 func TestKeyCacheControl(t *testing.T) {
 	cases := [][]string{
-		{"pub/firefox/nightly/latest-trunk/firefox-44.0a1.en-US.win32.installer.exe", "max-age=3600"},
-		{"pub/firefox/releases/41.0.2/win32/en-US/Firefox%20Setup%2041.0.2.exe", ""},
+		{`pub/firefox/nightly/latest-trunk/firefox-44.0a1.en-US.win32.installer.exe`, "max-age=3600"},
+		{`pub/firefox/releases/41.0.2/win32/en-US/Firefox%20Setup%2041.0.2.exe`, ""},
 	}
 
 	for _, c := range cases {
