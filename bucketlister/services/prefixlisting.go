@@ -9,8 +9,14 @@ import (
 // Prefix represents a prefix path
 type Prefix string
 
+// Escaped returns prefix escaped with special s3 rules
 func (p Prefix) Escaped() string {
 	return s3Escaper.Replace(string(p))
+}
+
+// URLEscaped returns prefix url encoded
+func (p Prefix) URLEscaped() string {
+	return urlEscaper.Replace(string(p))
 }
 
 // File represents an object in a PrefixListing
