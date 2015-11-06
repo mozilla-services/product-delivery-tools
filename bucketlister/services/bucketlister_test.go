@@ -32,6 +32,11 @@ func TestBucketPrefix(t *testing.T) {
 				LastModified: &now,
 				Size:         aws.Int64(2048),
 			},
+			&s3.Object{
+				Key:          aws.String("/pub/firebird/MozillaFirebird:i686-linux-gtk2+xft.tar.gz"),
+				LastModified: &now,
+				Size:         aws.Int64(2048),
+			},
 		},
 		[]*s3.CommonPrefix{
 			&s3.CommonPrefix{
@@ -55,6 +60,8 @@ func TestBucketPrefix(t *testing.T) {
 	assert.Contains(t, recorder.Body.String(), "/pre&#43;fix/prefix&#43;1/")
 	assert.Contains(t, recorder.Body.String(), "2K")
 	assert.Contains(t, recorder.Body.String(), "/pre%2Bfix/MozillaFirebird-i686-linux-gtk2%2Bxft.tar.gz")
+	assert.Contains(t, recorder.Body.String(), "/pre%2Bfix/MozillaFirebird%3Ai686-linux-gtk2%2Bxft.tar.gz")
+	assert.Contains(t, recorder.Body.String(), "MozillaFirebird:i686-linux-gtk2")
 
 	recorder = httptest.NewRecorder()
 	req, err = http.NewRequest("GET", "/", nil)
