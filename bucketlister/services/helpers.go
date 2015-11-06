@@ -16,17 +16,13 @@ var listObjects = func(svc *s3.S3, bucket, prefix string) (objects []*s3.Object,
 		Delimiter: aws.String("/"),
 		Prefix:    aws.String(prefix),
 	}
-	for {
-		res, err := svc.ListObjects(listParams)
-		if err != nil {
-			return nil, nil, fmt.Errorf("listing %s/%s err: %s", bucket, prefix, err)
-		}
+	err = svc.ListObjectsPages(listParams, func(res *s3.ListObjectsOutput, lastpage bool) bool {
 		prefixes = append(prefixes, res.CommonPrefixes...)
 		objects = append(objects, res.Contents...)
-		if (res.IsTruncated != nil && !*res.IsTruncated) || res.NextMarker == nil {
-			break
-		}
-		listParams.Marker = aws.String(*res.NextMarker)
+		return true
+	})
+	if err != nil {
+		return nil, nil, fmt.Errorf("listing %s/%s err: %s", bucket, prefix, err)
 	}
 	return
 }
