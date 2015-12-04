@@ -8,12 +8,13 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/mozilla-services/product-delivery-tools"
 )
 
 func s3Service() *s3.S3 {
-	return s3.New(deliverytools.AWSConfig)
+	return s3.New(session.New(deliverytools.AWSConfig))
 }
 
 var s3FileCache = map[string]string{}
