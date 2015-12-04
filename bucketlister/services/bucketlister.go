@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
@@ -33,7 +34,7 @@ type BucketLister struct {
 
 	listers []*BucketLister
 
-	AWSConfig *aws.Config
+	Session *session.Session
 }
 
 // NewBucketLister returns a *BucketLister
@@ -44,8 +45,11 @@ func NewBucketLister(bucket, prefix string, awsConfig *aws.Config) *BucketLister
 	if trimmedPrefix != "" {
 		trimmedPrefix += "/"
 	}
+
+	session := session.New(awsConfig)
+
 	return &BucketLister{
-		AWSConfig:  awsConfig,
+		Session:  session,
 		Bucket:     bucket,
 		mountedAt:  "/" + trimmedPrefix,
 		basePrefix: trimmedPrefix,
@@ -71,7 +75,7 @@ func (b *BucketLister) Empty() (bool, error) {
 		MaxKeys: aws.Int64(1),
 	}
 
-	s3Service := s3.New(b.AWSConfig)
+	s3Service := s3.New(b.Session)
 	res, err := s3Service.ListObjects(listParams)
 	if err != nil {
 		return true, fmt.Errorf("listing %s err: %s", b.Bucket, err)
@@ -126,7 +130,7 @@ func deduplicateSlice(slice []string) []string {
 }
 
 func (b *BucketLister) listPrefix(reqPath, prefix string) (*PrefixListing, error) {
-	s3Service := s3.New(b.AWSConfig)
+	s3Service := s3.New(b.Session)
 	objects, prefixes, err := listObjects(s3Service, b.Bucket, prefix)
 	if err != nil {
 		return nil, err
@@ -186,7 +190,7 @@ func (b *BucketLister) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		setExpiresIn(15*time.Minute, w)
 		w.Header().Set("Content-Type", "text/html")
 
-		s3Service := s3.New(b.AWSConfig)
+		s3Service := s3.New(b.Session)
 		params := &s3.GetObjectInput{
 			Bucket: aws.String(b.Bucket),
 			Key:    aws.String(prefix + file.Name),
