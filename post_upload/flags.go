@@ -31,7 +31,7 @@ var Flags = []cli.Flag{
 		Usage: "Sets S3 bucket prefix"},
 	cli.StringFlag{
 		Name:  "url-prefix",
-		Value: "http://archive.mozilla.org/",
+		Value: "https://archive.mozilla.org/",
 		Usage: "Sets URL prefix. (Only affects output)"},
 	cli.StringFlag{
 		Name: "nightly-dir", Value: "nightly",
