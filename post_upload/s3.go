@@ -13,7 +13,7 @@ import (
 )
 
 func s3Service() *s3.S3 {
-	return s3.New(deliverytools.AWSConfig)
+	return s3.New(deliverytools.AWSSession)
 }
 
 var s3FileCache = map[string]string{}
