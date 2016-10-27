@@ -9,6 +9,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
+	deliverytools "github.com/mozilla-services/product-delivery-tools"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -45,7 +46,7 @@ func TestBucketPrefix(t *testing.T) {
 		},
 		nil,
 	)
-	bl := NewBucketLister("bucket", "/prefix/", nil)
+	bl := NewBucketLister("bucket", "/prefix/", deliverytools.AWSSession)
 
 	assert.Equal(t, bl.basePrefix, "prefix/")
 
