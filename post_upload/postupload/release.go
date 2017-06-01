@@ -125,17 +125,20 @@ func (r *Release) ToLatest(file string) ([]string, error) {
 	}
 
 	regularDests, err := r.resolvePath(file, latestPath, false)
+	if err != nil {
+		return nil, fmt.Errorf("could not resolve latestPath: %v", err)
+	}
 
-	if err == nil &&
-		!strings.HasSuffix(r.Branch, "l10n") &&
+	if !strings.HasSuffix(r.Branch, "l10n") &&
 		enUsFilesToCopyToL10nRe.MatchString(file) {
 
 		l10nPath := r.generateLatestPathWithSuffix("-l10n")
-		l10nDests, l10nErr := r.resolvePath(file, l10nPath, false)
+		l10nDests, err := r.resolvePath(file, l10nPath, false)
+		if err != nil {
+			return nil, fmt.Errorf("could not resolve l10nPath: %v", err)
+		}
 
-		finalDests := append(regularDests, l10nDests...)
-
-		return finalDests, l10nErr
+		regularDests = append(regularDests, l10nDests...)
 	}
 
 	return regularDests, err

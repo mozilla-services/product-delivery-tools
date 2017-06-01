@@ -48,7 +48,9 @@ func TestReleaseToLatest(t *testing.T) {
 		FileTest{"/tmp/src/mar.exe", []string{"pub/firefox/nightly/latest-l10n/build-dir/mar-tools/win32/mar.exe"}},
 	}
 	for _, file := range files {
-		assertDestsAreCorrect(t, rel, file.Src, file.Dests)
+		dests, err := rel.ToLatest(file.Src)
+		assert.Nil(err)
+		assert.Equal(file.Dests, dests)
 	}
 }
 
@@ -90,33 +92,29 @@ func TestEnUsToLatest(t *testing.T) {
 	}
 
 	for _, fileName := range filesThatMustBeDuplicated {
-		filePath := "/tmp/src/"+fileName
+		filePath := "/tmp/src/" + fileName
 
 		expectedDests := []string{
-			"pub/firefox/nightly/latest-mozilla-central/build-dir/"+fileName,
-			"pub/firefox/nightly/latest-mozilla-central-l10n/build-dir/"+fileName,
+			"pub/firefox/nightly/latest-mozilla-central/build-dir/" + fileName,
+			"pub/firefox/nightly/latest-mozilla-central-l10n/build-dir/" + fileName,
 		}
 
-		assertDestsAreCorrect(t, rel, filePath, expectedDests)
+		dests, err := rel.ToLatest(filePath)
+		assert.Nil(t, err)
+		assert.Equal(t, expectedDests, dests)
 	}
 
 	for _, fileName := range filesThatMustNotReachTheL10nFolder {
-		filePath := "/tmp/src/"+fileName
+		filePath := "/tmp/src/" + fileName
 
 		expectedDests := []string{
-			"pub/firefox/nightly/latest-mozilla-central/build-dir/"+fileName,
+			"pub/firefox/nightly/latest-mozilla-central/build-dir/" + fileName,
 		}
 
-		assertDestsAreCorrect(t, rel, filePath, expectedDests)
+		dests, err := rel.ToLatest(filePath)
+		assert.Nil(t, err)
+		assert.Equal(t, expectedDests, dests)
 	}
-}
-
-func assertDestsAreCorrect(t *testing.T, rel *Release, src string, expectedDests []string) {
-	assert := assert.New(t)
-
-	dests, err := rel.ToLatest(src)
-	assert.Nil(err)
-	assert.Equal(expectedDests, dests)
 }
 
 func TestReleaseToDated(t *testing.T) {
