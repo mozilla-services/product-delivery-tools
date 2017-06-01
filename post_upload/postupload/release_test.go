@@ -48,10 +48,75 @@ func TestReleaseToLatest(t *testing.T) {
 		FileTest{"/tmp/src/mar.exe", []string{"pub/firefox/nightly/latest-l10n/build-dir/mar-tools/win32/mar.exe"}},
 	}
 	for _, file := range files {
-		dests, err := rel.ToLatest(file.Src)
-		assert.Nil(err)
-		assert.Equal(file.Dests, dests)
+		assertDestsAreCorrect(t, rel, file.Src, file.Dests)
 	}
+}
+
+func TestEnUsToLatest(t *testing.T) {
+	rel := NewTestRelease()
+	rel.Branch = "mozilla-central"
+
+	filesThatMustBeDuplicated := []string{
+		"firefox-55.0a1.en-US.linux-i686.checksums",
+		"firefox-55.0a1.en-US.linux-i686.checksums.asc",
+		"firefox-55.0a1.en-US.linux-i686.complete.mar",
+		"firefox-55.0a1.en-US.linux-x86_64.tar.bz2",
+		"firefox-55.0a1.en-US.linux-x86_64.tar.bz2.asc",
+		"firefox-55.0a1.en-US.mac.dmg",
+		"firefox-55.0a1.en-US.win32.installer-stub.exe",
+		"firefox-55.0a1.en-US.win32.installer.exe",
+		"firefox-55.0a1.en-US.win32.zip",
+	}
+
+	// Not every file is under that list, but it's a representative (enough) subset
+	filesThatMustNotReachTheL10nFolder := []string{
+		"firefox-55.0a1.en-US.linux-x86_64.common.tests.zip",
+		"firefox-55.0a1.en-US.linux-i686.awsy.tests.zip",
+		"firefox-55.0a1.en-US.linux-i686.common.tests.zip",
+		"firefox-55.0a1.en-US.linux-i686.cppunittest.tests.zip",
+		"firefox-55.0a1.en-US.linux-i686.json",
+		"firefox-55.0a1.en-US.linux-i686.mochitest.tests.zip",
+		"firefox-55.0a1.en-US.linux-i686.mozinfo.json",
+		"firefox-55.0a1.en-US.linux-i686.reftest.tests.zip",
+		"firefox-55.0a1.en-US.linux-i686.talos.tests.zip",
+		"firefox-55.0a1.en-US.linux-i686.test_packages.json",
+		"firefox-55.0a1.en-US.linux-i686.txt",
+		"firefox-55.0a1.en-US.linux-i686.web-platform.tests.zip",
+		"firefox-55.0a1.en-US.win64.xpcshell.tests.zip",
+		"firefox-55.0a1.en-US.win32_info.txt",
+		"firefox-55.0a1.en-US.mac.web-platform.tests.tar.gz",
+		"jsshell-linux-i686.zip",
+		"mozharness.zip",
+	}
+
+	for _, fileName := range filesThatMustBeDuplicated {
+		filePath := "/tmp/src/"+fileName
+
+		expectedDests := []string{
+			"pub/firefox/nightly/latest-mozilla-central/build-dir/"+fileName,
+			"pub/firefox/nightly/latest-mozilla-central-l10n/build-dir/"+fileName,
+		}
+
+		assertDestsAreCorrect(t, rel, filePath, expectedDests)
+	}
+
+	for _, fileName := range filesThatMustNotReachTheL10nFolder {
+		filePath := "/tmp/src/"+fileName
+
+		expectedDests := []string{
+			"pub/firefox/nightly/latest-mozilla-central/build-dir/"+fileName,
+		}
+
+		assertDestsAreCorrect(t, rel, filePath, expectedDests)
+	}
+}
+
+func assertDestsAreCorrect(t *testing.T, rel *Release, src string, expectedDests []string) {
+	assert := assert.New(t)
+
+	dests, err := rel.ToLatest(src)
+	assert.Nil(err)
+	assert.Equal(expectedDests, dests)
 }
 
 func TestReleaseToDated(t *testing.T) {
