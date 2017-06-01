@@ -10,6 +10,7 @@ import (
 
 var platforms = []string{"win32", "macosx64", "linux", "linux64", "win64"}
 var partialMarRe = regexp.MustCompile(`\.partial\..*\.mar(\.asc)?$`)
+var enUsFilesToCopyToL10nRe = regexp.MustCompile(`\.en-US\.(win(32|64)\.zip|.*\.(checksums|complete\.mar|tar.bz2|dmg|exe)(.asc)?)$`)
 
 // Release contains options for deploying files to S3
 type Release struct {
@@ -101,10 +102,7 @@ func (r *Release) ToLatest(file string) ([]string, error) {
 	if r.Branch == "" {
 		return nil, fmt.Errorf("ToLatest: Branch cannot be empty")
 	}
-	latestPath := filepath.Join(r.nightlyPath(), "latest-"+r.Branch)
-	if r.BuildDir != "" {
-		latestPath = filepath.Join(latestPath, r.BuildDir)
-	}
+	latestPath := r.generateLatestPath()
 	marToolsPath := filepath.Join(latestPath, "mar-tools")
 
 	if strings.HasSuffix(file, "crashreporter-symbols.zip") {
@@ -126,7 +124,33 @@ func (r *Release) ToLatest(file string) ([]string, error) {
 		return nil, nil
 	}
 
-	return r.resolvePath(file, latestPath, false)
+	regularDests, err := r.resolvePath(file, latestPath, false)
+
+	if err == nil &&
+		!strings.HasSuffix(r.Branch, "l10n") &&
+		enUsFilesToCopyToL10nRe.MatchString(file) {
+
+		l10nPath := r.generateLatestPathWithSuffix("-l10n")
+		l10nDests, l10nErr := r.resolvePath(file, l10nPath, false)
+
+		finalDests := append(regularDests, l10nDests...)
+
+		return finalDests, l10nErr
+	}
+
+	return regularDests, err
+}
+
+func (r *Release) generateLatestPath() string {
+	return r.generateLatestPathWithSuffix("")
+}
+
+func (r *Release) generateLatestPathWithSuffix(branchSuffix string) string {
+	latestPath := filepath.Join(r.nightlyPath(), "latest-"+r.Branch+branchSuffix)
+	if r.BuildDir != "" {
+		latestPath = filepath.Join(latestPath, r.BuildDir)
+	}
+	return latestPath
 }
 
 // ToDated returns destinations for dated
