@@ -61,13 +61,13 @@ func doMain(c *cli.Context) {
 	rootLister := services.NewBucketLister(
 		c.String("bucket-prefix")+"-"+deliverytools.ProdBucketMap.Default,
 		"",
-		deliverytools.AWSConfig,
+		deliverytools.AWSSession,
 	)
 
 	listers := []*services.BucketLister{}
 	lister := func(suffix, prefix string) http.Handler {
 		bl := services.NewBucketLister(
-			c.String("bucket-prefix")+"-"+suffix, prefix, deliverytools.AWSConfig)
+			c.String("bucket-prefix")+"-"+suffix, prefix, deliverytools.AWSSession)
 
 		listers = append(listers, bl)
 		return bl
