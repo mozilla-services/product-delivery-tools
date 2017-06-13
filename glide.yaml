@@ -1,0 +1,18 @@
+package: github.com/mozilla-services/product-delivery-tools
+import:
+- package: github.com/PagerDuty/godspeed
+  version: 079d1fb267ad66b7a3bd42c24013cbeb29698c3d
+- package: github.com/aws/aws-sdk-go
+  version: ^1.8.40
+  subpackages:
+  - aws
+  - aws/session
+  - service/s3
+- package: github.com/codegangsta/cli
+  version: a889873af50a499d060097216dcdbcc26ed09e7c
+- package: github.com/stretchr/testify
+  version: 5ab65693f48b284b3f7a83114dd7b166b45f0193
+  subpackages:
+  - assert
+- package: github.com/vaughan0/go-ini
+  version: a98ad7ee00ec53921f08832bc06ecf7fd600e6a1
