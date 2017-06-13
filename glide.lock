@@ -1,0 +1,44 @@
+hash: 3e031ef6c56d0b570b838f272ce53987e7cd6acc7b45bafff0b9a561e87cfcd6
+updated: 2017-06-13T08:56:02.617334279-07:00
+imports:
+- name: github.com/aws/aws-sdk-go
+  version: 0acbed719df7e03681e759ca100f3dcbc9fc28d7
+  subpackages:
+  - aws
+  - aws/awserr
+  - aws/awsutil
+  - aws/client
+  - aws/client/metadata
+  - aws/corehandlers
+  - aws/credentials
+  - aws/credentials/ec2rolecreds
+  - aws/credentials/endpointcreds
+  - aws/credentials/stscreds
+  - aws/defaults
+  - aws/ec2metadata
+  - aws/endpoints
+  - aws/request
+  - aws/session
+  - aws/signer/v4
+  - internal/shareddefaults
+  - private/protocol
+  - private/protocol/query
+  - private/protocol/query/queryutil
+  - private/protocol/rest
+  - private/protocol/restxml
+  - private/protocol/xml/xmlutil
+  - service/s3
+  - service/sts
+- name: github.com/codegangsta/cli
+  version: a889873af50a499d060097216dcdbcc26ed09e7c
+- name: github.com/go-ini/ini
+  version: 6e4869b434bd001f6983749881c7ead3545887d8
+- name: github.com/jmespath/go-jmespath
+  version: 3433f3ea46d9f8019119e7dd41274e112a2359a9
+- name: github.com/PagerDuty/godspeed
+  version: 079d1fb267ad66b7a3bd42c24013cbeb29698c3d
+- name: github.com/stretchr/testify
+  version: 5ab65693f48b284b3f7a83114dd7b166b45f0193
+  subpackages:
+  - assert
+testImports: []
