@@ -14,5 +14,3 @@ import:
   version: 5ab65693f48b284b3f7a83114dd7b166b45f0193
   subpackages:
   - assert
-- package: github.com/vaughan0/go-ini
-  version: a98ad7ee00ec53921f08832bc06ecf7fd600e6a1
